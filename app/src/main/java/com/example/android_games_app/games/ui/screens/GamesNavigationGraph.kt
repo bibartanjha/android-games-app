@@ -27,10 +27,13 @@ fun GamesNavigationGraph(
         composable(Routes.WORDLE_SCREEN) {
             LaunchedEffect(Unit) {
                 if (!wordleGameViewModel.getWordleGameState.value.gameInProgress) {
-                    // if the user is in the middle of the game and went back
+                    /**
+                    If the user is in the middle of the game and went back to the main menu,
+                    and then clicks back on Wordle, then we don't want to start a new game
+                     Instead, we want the previous game state to be kept. That is why I added this if-check
+                     */
                     wordleGameViewModel.startNewGame()
                 }
-
             }
             WordleGameScreen(
                 wordleGameViewModel = wordleGameViewModel,
