@@ -5,7 +5,7 @@ object Routes {
 
     const val WORDLE_SCREEN = "Wordle"
 
-    const val GAME_2_SCREEN = "Game2"
+    const val SNAKE_SCREEN = "Snake"
 
     const val GAME_3_SCREEN = "Game3"
 }

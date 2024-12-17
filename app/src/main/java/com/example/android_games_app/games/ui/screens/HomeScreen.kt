@@ -46,7 +46,7 @@ fun HomeScreen(
             val optionCardWidth = screenWidth / 3
             val optionCardTextSize = (optionCardWidth/7.22)
 
-            val gameOptions = listOf(Routes.WORDLE_SCREEN, Routes.GAME_2_SCREEN, Routes.GAME_3_SCREEN)
+            val gameOptions = listOf(Routes.WORDLE_SCREEN, Routes.SNAKE_SCREEN, Routes.GAME_3_SCREEN)
 
             for (option in gameOptions) {
                 BaseCard(

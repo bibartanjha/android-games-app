@@ -5,14 +5,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.android_games_app.games.game2.Game2Screen
 import com.example.android_games_app.games.game3.Game3Screen
+import com.example.android_games_app.games.snake.view.SnakeScreen
+import com.example.android_games_app.games.snake.viewmodel.SnakeGameViewModel
 import com.example.android_games_app.games.wordle.view.WordleGameScreen
 import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
 
 @Composable
 fun GamesNavigationGraph(
-    wordleGameViewModel: WordleGameViewModel
+    wordleGameViewModel: WordleGameViewModel,
+    snakeGameViewModel: SnakeGameViewModel
 ) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
@@ -46,11 +48,12 @@ fun GamesNavigationGraph(
             )
         }
 
-        composable(Routes.GAME_2_SCREEN) {
-            Game2Screen(
+        composable(Routes.SNAKE_SCREEN) {
+            SnakeScreen(
                 onBackClicked = {
                     navController.navigate(Routes.HOME_SCREEN)
-                }
+                },
+                snakeGameViewModel = snakeGameViewModel
             )
         }
 
