@@ -2,11 +2,12 @@ package com.example.android_games_app.games.snake.viewmodel
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_games_app.games.snake.model.SnakeGameState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,22 +16,7 @@ class SnakeGameViewModel: ViewModel() {
 
     private val snakeGameState = MutableStateFlow(SnakeGameState())
     val getSnakeGameState: StateFlow<SnakeGameState> = snakeGameState
-
-    private val handler = Handler(Looper.getMainLooper())
-
-    private var isGameLoopRunning = false
-
-    private val gameLoopRunnable = object : Runnable {
-        override fun run() {
-            if (!snakeGameState.value.isPaused) {
-                val currentNumber = snakeGameState.value.currentNumber
-                snakeGameState.value = snakeGameState.value.copy(
-                    currentNumber = currentNumber + 1
-                )
-                handler.postDelayed(this, 200)
-            }
-        }
-    }
+    private var job: Job? = null
 
     init {
         observeIsPausedState()
@@ -49,16 +35,25 @@ class SnakeGameViewModel: ViewModel() {
     }
 
     private fun startGameLoop() {
-        if (isGameLoopRunning) {
-            return
+        // If the game loop is already running, don't start it again.
+        if (job != null && job?.isActive == true) return
+
+        job = viewModelScope.launch {
+            while (!snakeGameState.value.isPaused) {
+                delay(1000) // Delay for 1 second
+                val currentNumber = snakeGameState.value.currentNumber
+                snakeGameState.value = snakeGameState.value.copy(currentNumber = currentNumber + 1)
+            }
         }
-        isGameLoopRunning = true
-        handler.post(gameLoopRunnable)
     }
 
+//    private fun stopGameLoop() {
+//        isGameLoopRunning = false
+//        handler.removeCallbacks(gameLoopRunnable)
+//    }
+
     private fun stopGameLoop() {
-        isGameLoopRunning = false
-        handler.removeCallbacks(gameLoopRunnable)
+        job?.cancel() // Cancel the current job if it is running
     }
 
     fun updateIsPaused(isPaused: Boolean) {
