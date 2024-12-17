@@ -2,8 +2,9 @@ package com.example.android_games_app.games.wordle.viewmodel
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import com.example.android_games_app.games.wordle.WordleFixedValues.NUM_LETTERS_IN_WORD
-import com.example.android_games_app.games.wordle.WordleFixedValues.NUM_POSSIBLE_GUESSES
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
+import com.example.android_games_app.games.wordle.model.GameFinishStatus
 import com.example.android_games_app.games.wordle.model.LetterGuess
 import com.example.android_games_app.games.wordle.model.WordleGameState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,9 +14,7 @@ class WordleGameViewModel : ViewModel() {
     private val wordleGameState = MutableStateFlow(WordleGameState())
     val getWordleGameState: StateFlow<WordleGameState> = wordleGameState
 
-    private fun setNewWord() {
-        val newWord = "ARISE" // I will replace with API call later
-
+    private fun setNewWord(newWord: String) {
         val lettersPlacements: MutableMap<Char, MutableSet<Int>> = HashMap()
         for (i in newWord.indices) {
             val letter = newWord[i]
@@ -25,6 +24,22 @@ class WordleGameViewModel : ViewModel() {
         wordleGameState.value = wordleGameState.value.copy(
             wordForUserToGuess = newWord,
             lettersPlacements = lettersPlacements
+        )
+    }
+
+    private fun resetStateValues() {
+        wordleGameState.value = wordleGameState.value.copy(
+            wordForUserToGuess = "",
+            lettersPlacements = HashMap(),
+            letterGuessValues = List(NUM_POSSIBLE_GUESSES) { MutableList(NUM_LETTERS_IN_WORD) { LetterGuess() } },
+            currentGuessNumber = 0,
+            currentGuessLetterIndex = 0,
+            gameFinishStatus = GameFinishStatus(
+                gameFinished = false,
+                guessedWordSuccessfully = false,
+                correctWord = "",
+                numGuessesMade = 0
+            )
         )
     }
 
@@ -126,26 +141,41 @@ class WordleGameViewModel : ViewModel() {
                 }
             }
 
-            val currentGuessNumber = gameState.currentGuessNumber
-            val currentGuessLetterIndex = gameState.currentGuessLetterIndex
+            val updatedGameFinishStatus = GameFinishStatus(
+                gameFinished = false,
+                guessedWordSuccessfully = false,
+                correctWord = gameState.wordForUserToGuess,
+                numGuessesMade = gameState.currentGuessNumber
+            )
+
+            var updatedGuessNumber = gameState.currentGuessNumber
+            var currentGuessLetterIndex = gameState.currentGuessLetterIndex
+
+            if (guessValidity.all { it == 2 }) {
+                // all letters guessed correctly
+                updatedGameFinishStatus.gameFinished = true
+                updatedGameFinishStatus.guessedWordSuccessfully = true
+            } else {
+                if (gameState.currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
+                    // no more guesses left
+                    updatedGameFinishStatus.gameFinished = true
+                } else {
+                    updatedGuessNumber += 1
+                    currentGuessLetterIndex = 0
+                }
+            }
 
             wordleGameState.value = gameState.copy(
                 letterGuessValues = updatedLetterGuessValues,
-                currentGuessNumber = if (currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
-                    currentGuessNumber
-                } else {
-                    currentGuessNumber + 1
-                },
-                currentGuessLetterIndex = if (currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
-                    currentGuessLetterIndex
-                } else {
-                    0
-                }
+                currentGuessNumber = updatedGuessNumber,
+                currentGuessLetterIndex = currentGuessLetterIndex,
+                gameFinishStatus = updatedGameFinishStatus
             )
         }
     }
 
-    fun startNewGame() {
-        setNewWord()
+    fun startNewGame(newWord: String) {
+        resetStateValues()
+        setNewWord(newWord)
     }
 }

@@ -17,22 +17,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.android_games_app.games.wordle.LetterGuessTextView
-import com.example.android_games_app.games.wordle.TextInputButton
-import com.example.android_games_app.games.wordle.WordleFixedValues.KEYBOARD_ROWS
-import com.example.android_games_app.games.wordle.WordleFixedValues.NUM_LETTERS_IN_WORD
-import com.example.android_games_app.games.wordle.WordleFixedValues.NUM_POSSIBLE_GUESSES
+import com.example.android_games_app.games.ui.BaseCard
+import com.example.android_games_app.games.ui.TextViewWithMessages
+import com.example.android_games_app.games.ui.screens.Routes
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.KEYBOARD_ROWS
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.WORDLE_SCREEN_BG_COLOR
 import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
 
 @Composable
 fun WordleGameScreen(
-    wordleGameViewModel: WordleGameViewModel
+    wordleGameViewModel: WordleGameViewModel,
+    onPostGameOptionSelected: (optionName: String) -> Unit
 ) {
     val gameState by wordleGameViewModel.getWordleGameState.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(red = 158, green = 210, blue = 198)
+        color = WORDLE_SCREEN_BG_COLOR
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -46,55 +49,92 @@ fun WordleGameScreen(
                 ) {
                     for (col in 0 until NUM_LETTERS_IN_WORD) {
                         LetterGuessTextView(
-                            bgColor = gameState.letterGuessValues[row][col].currentBGColor,
-                            letterInView = gameState.letterGuessValues[row][col].currentLetter
+                            backgroundColor = gameState.letterGuessValues[row][col].currentBGColor,
+                            letterInView = gameState.letterGuessValues[row][col].currentLetter,
+                            boxSize = if (gameState.gameFinishStatus.gameFinished) {
+                                50
+                            } else {
+                                74
+                            }
                         )
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            for (keyboardRow in KEYBOARD_ROWS.indices) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-                ) {
-                    if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add BACK button to last row
-                        TextInputButton(
-                            textInButton = "BACK",
-                            buttonClicked = {
-                                wordleGameViewModel.removeLetter()
-                            },
-                            buttonWidth = 60.dp,
-                            buttonHeight = 60.dp,
-                            fontSize = 16.sp
-                        )
+            if (gameState.gameFinishStatus.gameFinished) {
+                Spacer(modifier = Modifier.height(10.dp))
+                TextViewWithMessages(
+                    text = if (gameState.gameFinishStatus.guessedWordSuccessfully) {
+                        "Congrats!"
+                    } else {
+                        "The correct word was ${gameState.gameFinishStatus.correctWord}"
+                    },
+                    subTexts = listOf("Pick an option below"),
+                    backgroundColor = Color.DarkGray,
+                    textColor = Color.White,
+                )
+                BaseCard(
+                    textValue = "Start New Game",
+                    cardWidth = 300.dp,
+                    cardHeight = 50.dp,
+                    textSize = 24.sp,
+                    onBaseCardClicked = {
+                        onPostGameOptionSelected(Routes.WORDLE_SCREEN)
                     }
-
-                    for (letter in KEYBOARD_ROWS[keyboardRow]) {
-                        TextInputButton(
-                            textInButton = letter.toString(),
-                            buttonClicked = {
-                                wordleGameViewModel.addLetter(it)
-                            }
-                        )
+                )
+                BaseCard(
+                    textValue = "Return to Main Menu",
+                    cardWidth = 300.dp,
+                    cardHeight = 50.dp,
+                    textSize = 24.sp,
+                    onBaseCardClicked = {
+                        onPostGameOptionSelected(Routes.HOME_SCREEN)
                     }
+                )
+            }
+            else {
+                Spacer(modifier = Modifier.height(40.dp))
+                for (keyboardRow in KEYBOARD_ROWS.indices) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                    ) {
+                        if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add BACK button to last row
+                            TextInputButton(
+                                textInButton = "BACK",
+                                buttonClicked = {
+                                    wordleGameViewModel.removeLetter()
+                                },
+                                buttonWidth = 60.dp,
+                                buttonHeight = 60.dp,
+                                fontSize = 16.sp
+                            )
+                        }
 
-                    if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add ENTER button to last row
-                        TextInputButton(
-                            textInButton = "ENTER",
-                            buttonClicked = {
-                                wordleGameViewModel.handleEnter()
-                            },
-                            buttonWidth = 60.dp,
-                            buttonHeight = 60.dp,
-                            fontSize = 16.sp
-                        )
+                        for (letter in KEYBOARD_ROWS[keyboardRow]) {
+                            TextInputButton(
+                                textInButton = letter.toString(),
+                                buttonClicked = {
+                                    wordleGameViewModel.addLetter(it)
+                                }
+                            )
+                        }
+
+                        if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add ENTER button to last row
+                            TextInputButton(
+                                textInButton = "ENTER",
+                                buttonClicked = {
+                                    wordleGameViewModel.handleEnter()
+                                },
+                                buttonWidth = 60.dp,
+                                buttonHeight = 60.dp,
+                                fontSize = 16.sp
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -103,5 +143,8 @@ fun WordleGameScreen(
 @Preview
 @Composable
 fun WordleGameScreenPreview() {
-    WordleGameScreen(WordleGameViewModel())
+    WordleGameScreen(
+        wordleGameViewModel = WordleGameViewModel(),
+        onPostGameOptionSelected = {}
+    )
 }

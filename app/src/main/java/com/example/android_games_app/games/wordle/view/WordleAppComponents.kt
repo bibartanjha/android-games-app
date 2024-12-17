@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.wordle
+package com.example.android_games_app.games.wordle.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,21 +23,22 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun LetterGuessTextView(
-    bgColor: Color = Color(red = 233, green = 218, blue = 193),
-    letterInView: String = ""
+    backgroundColor: Color = Color(red = 233, green = 218, blue = 193),
+    letterInView: String = "",
+    boxSize: Int = 74
 ) {
     Box(
         modifier = Modifier
-            .size(75.dp)
+            .size((boxSize).dp)
             .background(
-                color = bgColor,
+                color = backgroundColor,
                 shape = RoundedCornerShape(6.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = letterInView,
-            fontSize = 36.sp,
+            fontSize = (boxSize/2).sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Clip
@@ -53,7 +54,7 @@ fun LetterGuessTextViewPreview() {
 
 @Composable
 fun TextInputButton(
-    bgColor: Color = Color(red = 233, green = 218, blue = 193),
+    backgroundColor: Color = Color(red = 233, green = 218, blue = 193),
     buttonClicked: (buttonText: String) -> Unit,
     textInButton: String = "A",
     buttonWidth: Dp = 32.dp,
@@ -65,7 +66,7 @@ fun TextInputButton(
             .width(buttonWidth)
             .height(buttonHeight)
             .background(
-                color = bgColor,
+                color = backgroundColor,
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable {
@@ -88,3 +89,5 @@ fun TextInputButton(
 fun TextInputButtonPreview() {
     TextInputButton(textInButton = "A", buttonClicked = {})
 }
+
+

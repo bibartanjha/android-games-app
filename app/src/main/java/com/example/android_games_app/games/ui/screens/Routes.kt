@@ -1,7 +1,7 @@
 package com.example.android_games_app.games.ui.screens
 
 object Routes {
-    const val HOME_SCREEN = "Home"
+    const val HOME_SCREEN = "MainMenu"
 
     const val WORDLE_SCREEN = "Wordle"
 
