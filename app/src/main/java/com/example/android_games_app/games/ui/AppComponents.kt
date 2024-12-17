@@ -18,12 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.games.ui.screens.Routes
 
 @Composable
 fun BaseCard(
@@ -78,6 +80,8 @@ fun TextViewWithMessages(
     backgroundColor: Color,
     textColor: Color
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
@@ -95,7 +99,7 @@ fun TextViewWithMessages(
             Column {
                 Text(
                     text = text,
-                    fontSize = 24.sp,
+                    fontSize = (screenWidth/17).sp,
                     color = textColor,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -104,7 +108,7 @@ fun TextViewWithMessages(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = subText,
-                        fontSize = 16.sp,
+                        fontSize = (screenWidth/25).sp,
                         color = textColor,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
@@ -125,4 +129,34 @@ fun TextViewWithMessagesPreview() {
         textColor = Color.Black
     )
 }
+
+
+@Composable
+fun PostGameOptions(
+    onPostGameOptionSelected: (optionName: String) -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
+
+    BaseCard(
+        textValue = "Start New Round",
+        cardWidth = (screenWidth/1.37).dp,
+        cardHeight = (screenHeight/16.8).dp,
+        textSize = (screenWidth/17.125).sp,
+        onBaseCardClicked = {
+            onPostGameOptionSelected(Routes.WORDLE_SCREEN)
+        }
+    )
+    BaseCard(
+        textValue = "Return to Main Menu",
+        cardWidth = (screenWidth/1.37).dp,
+        cardHeight = (screenHeight/16.8).dp,
+        textSize = (screenWidth/17.125).sp,
+        onBaseCardClicked = {
+            onPostGameOptionSelected(Routes.HOME_SCREEN)
+        }
+    )
+}
+
 

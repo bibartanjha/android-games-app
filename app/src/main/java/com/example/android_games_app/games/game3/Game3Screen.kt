@@ -34,7 +34,7 @@ fun Game3Screen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Game 2")
+                    Text(text = "Game 3")
                 },
                 navigationIcon = {
                     IconButton(onClick = {onBackClicked()}) {

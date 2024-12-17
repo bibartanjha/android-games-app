@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,46 +28,37 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            val configuration = LocalConfiguration.current
+            val screenWidth = configuration.screenWidthDp
+            val screenHeight = configuration.screenHeightDp
+
+            val headerWidth = screenWidth / 1.37
+            val headerHeight = screenHeight / 16.8
+            val headerTextSize = (headerWidth/12.5)
             BaseCard(
                 textValue = "Select Game",
-                cardWidth = 300.dp,
-                cardHeight = 50.dp,
+                cardWidth = headerWidth.dp,
+                cardHeight = headerHeight.dp,
                 backgroundColor = Color.DarkGray,
                 textColor = Color.White,
-                textSize = 24.sp
+                textSize = headerTextSize.sp
             )
-            val optionCardWidth = 130.dp
-            val optionCardHeight = 130.dp
+            val optionCardWidth = screenWidth / 3
+            val optionCardTextSize = (optionCardWidth/7.22)
 
-            BaseCard(
-                textValue = Routes.WORDLE_SCREEN,
-                cardWidth = optionCardWidth,
-                cardHeight = optionCardHeight,
-                textSize = 18.sp,
-                onBaseCardClicked = {
-                    onOptionSelected(Routes.WORDLE_SCREEN)
-                }
-            )
+            val gameOptions = listOf(Routes.WORDLE_SCREEN, Routes.GAME_2_SCREEN, Routes.GAME_3_SCREEN)
 
-            BaseCard(
-                textValue = Routes.GAME_2_SCREEN,
-                cardWidth = optionCardWidth,
-                cardHeight = optionCardHeight,
-                textSize = 18.sp,
-                onBaseCardClicked = {
-                    onOptionSelected(Routes.GAME_2_SCREEN)
-                }
-            )
-
-            BaseCard(
-                textValue = Routes.GAME_3_SCREEN,
-                cardWidth = optionCardWidth,
-                cardHeight = optionCardHeight,
-                textSize = 18.sp,
-                onBaseCardClicked = {
-                    onOptionSelected(Routes.GAME_3_SCREEN)
-                }
-            )
+            for (option in gameOptions) {
+                BaseCard(
+                    textValue = option,
+                    cardWidth = optionCardWidth.dp,
+                    cardHeight = optionCardWidth.dp,
+                    textSize = optionCardTextSize.sp,
+                    onBaseCardClicked = {
+                        onOptionSelected(option)
+                    }
+                )
+            }
         }
     }
 }
