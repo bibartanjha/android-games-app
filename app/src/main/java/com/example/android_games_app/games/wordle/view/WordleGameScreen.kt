@@ -51,10 +51,10 @@ fun WordleGameScreen(
                         LetterGuessTextView(
                             backgroundColor = gameState.letterGuessValues[row][col].currentBGColor,
                             letterInView = gameState.letterGuessValues[row][col].currentLetter,
-                            boxSize = if (gameState.gameFinishStatus.gameFinished) {
-                                50
-                            } else {
+                            boxSize = if (gameState.gameInProgress) {
                                 74
+                            } else {
+                                50
                             }
                         )
                     }
@@ -62,38 +62,7 @@ fun WordleGameScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            if (gameState.gameFinishStatus.gameFinished) {
-                Spacer(modifier = Modifier.height(10.dp))
-                TextViewWithMessages(
-                    text = if (gameState.gameFinishStatus.guessedWordSuccessfully) {
-                        "Congrats!"
-                    } else {
-                        "The correct word was ${gameState.gameFinishStatus.correctWord}"
-                    },
-                    subTexts = listOf("Pick an option below"),
-                    backgroundColor = Color.DarkGray,
-                    textColor = Color.White,
-                )
-                BaseCard(
-                    textValue = "Start New Game",
-                    cardWidth = 300.dp,
-                    cardHeight = 50.dp,
-                    textSize = 24.sp,
-                    onBaseCardClicked = {
-                        onPostGameOptionSelected(Routes.WORDLE_SCREEN)
-                    }
-                )
-                BaseCard(
-                    textValue = "Return to Main Menu",
-                    cardWidth = 300.dp,
-                    cardHeight = 50.dp,
-                    textSize = 24.sp,
-                    onBaseCardClicked = {
-                        onPostGameOptionSelected(Routes.HOME_SCREEN)
-                    }
-                )
-            }
-            else {
+            if (gameState.gameInProgress) {
                 Spacer(modifier = Modifier.height(40.dp))
                 for (keyboardRow in KEYBOARD_ROWS.indices) {
                     Row(
@@ -135,6 +104,37 @@ fun WordleGameScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
+            }
+            else {
+                Spacer(modifier = Modifier.height(10.dp))
+                TextViewWithMessages(
+                    text = if (gameState.guessedWordSuccessfully) {
+                        "Congrats!"
+                    } else {
+                        "The correct word was ${gameState.wordForUserToGuess}"
+                    },
+                    subTexts = listOf("Pick an option below"),
+                    backgroundColor = Color.DarkGray,
+                    textColor = Color.White,
+                )
+                BaseCard(
+                    textValue = "Start New Game",
+                    cardWidth = 300.dp,
+                    cardHeight = 50.dp,
+                    textSize = 24.sp,
+                    onBaseCardClicked = {
+                        onPostGameOptionSelected(Routes.WORDLE_SCREEN)
+                    }
+                )
+                BaseCard(
+                    textValue = "Return to Main Menu",
+                    cardWidth = 300.dp,
+                    cardHeight = 50.dp,
+                    textSize = 24.sp,
+                    onBaseCardClicked = {
+                        onPostGameOptionSelected(Routes.HOME_SCREEN)
+                    }
+                )
             }
         }
     }

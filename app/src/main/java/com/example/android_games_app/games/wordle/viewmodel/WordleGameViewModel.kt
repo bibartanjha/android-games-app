@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
-import com.example.android_games_app.games.wordle.model.GameFinishStatus
 import com.example.android_games_app.games.wordle.model.LetterGuess
 import com.example.android_games_app.games.wordle.model.WordleGameState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,35 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 class WordleGameViewModel : ViewModel() {
     private val wordleGameState = MutableStateFlow(WordleGameState())
     val getWordleGameState: StateFlow<WordleGameState> = wordleGameState
-
-    private fun setNewWord(newWord: String) {
-        val lettersPlacements: MutableMap<Char, MutableSet<Int>> = HashMap()
-        for (i in newWord.indices) {
-            val letter = newWord[i]
-            lettersPlacements.computeIfAbsent(letter) { HashSet() }.add(i)
-        }
-
-        wordleGameState.value = wordleGameState.value.copy(
-            wordForUserToGuess = newWord,
-            lettersPlacements = lettersPlacements
-        )
-    }
-
-    private fun resetStateValues() {
-        wordleGameState.value = wordleGameState.value.copy(
-            wordForUserToGuess = "",
-            lettersPlacements = HashMap(),
-            letterGuessValues = List(NUM_POSSIBLE_GUESSES) { MutableList(NUM_LETTERS_IN_WORD) { LetterGuess() } },
-            currentGuessNumber = 0,
-            currentGuessLetterIndex = 0,
-            gameFinishStatus = GameFinishStatus(
-                gameFinished = false,
-                guessedWordSuccessfully = false,
-                correctWord = "",
-                numGuessesMade = 0
-            )
-        )
-    }
 
     private fun getGuessValidity(
         userInput: String
@@ -141,24 +111,22 @@ class WordleGameViewModel : ViewModel() {
                 }
             }
 
-            val updatedGameFinishStatus = GameFinishStatus(
-                gameFinished = false,
-                guessedWordSuccessfully = false,
-                correctWord = gameState.wordForUserToGuess,
-                numGuessesMade = gameState.currentGuessNumber
-            )
+
+            var updatedGameInProgress = gameState.gameInProgress
+            var updatedGuessedWordSuccessfully = gameState.guessedWordSuccessfully
 
             var updatedGuessNumber = gameState.currentGuessNumber
             var currentGuessLetterIndex = gameState.currentGuessLetterIndex
 
             if (guessValidity.all { it == 2 }) {
                 // all letters guessed correctly
-                updatedGameFinishStatus.gameFinished = true
-                updatedGameFinishStatus.guessedWordSuccessfully = true
+                updatedGameInProgress = false
+                updatedGuessedWordSuccessfully = true
             } else {
                 if (gameState.currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
                     // no more guesses left
-                    updatedGameFinishStatus.gameFinished = true
+                    updatedGameInProgress = false
+                    updatedGuessedWordSuccessfully = false
                 } else {
                     updatedGuessNumber += 1
                     currentGuessLetterIndex = 0
@@ -169,13 +137,27 @@ class WordleGameViewModel : ViewModel() {
                 letterGuessValues = updatedLetterGuessValues,
                 currentGuessNumber = updatedGuessNumber,
                 currentGuessLetterIndex = currentGuessLetterIndex,
-                gameFinishStatus = updatedGameFinishStatus
+                gameInProgress = updatedGameInProgress,
+                guessedWordSuccessfully = updatedGuessedWordSuccessfully,
             )
         }
     }
 
     fun startNewGame(newWord: String) {
-        resetStateValues()
-        setNewWord(newWord)
+        val lettersPlacements: MutableMap<Char, MutableSet<Int>> = HashMap()
+        for (i in newWord.indices) {
+            val letter = newWord[i]
+            lettersPlacements.computeIfAbsent(letter) { HashSet() }.add(i)
+        }
+
+        wordleGameState.value = wordleGameState.value.copy(
+            wordForUserToGuess = newWord,
+            lettersPlacements = lettersPlacements,
+            letterGuessValues = List(NUM_POSSIBLE_GUESSES) { MutableList(NUM_LETTERS_IN_WORD) { LetterGuess() } },
+            currentGuessNumber = 0,
+            currentGuessLetterIndex = 0,
+            gameInProgress = true,
+            guessedWordSuccessfully = false,
+        )
     }
 }

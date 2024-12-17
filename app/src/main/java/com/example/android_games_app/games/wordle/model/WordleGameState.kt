@@ -10,10 +10,6 @@ data class WordleGameState(
         List(NUM_POSSIBLE_GUESSES) { MutableList(NUM_LETTERS_IN_WORD) { LetterGuess() } },
     val currentGuessNumber: Int = 0,
     val currentGuessLetterIndex: Int = 0,
-    val gameFinishStatus: GameFinishStatus = GameFinishStatus(
-        gameFinished = false,
-        guessedWordSuccessfully = false,
-        correctWord = "",
-        numGuessesMade = 0
-    )
+    val gameInProgress: Boolean = false,
+    val guessedWordSuccessfully: Boolean = false
 )

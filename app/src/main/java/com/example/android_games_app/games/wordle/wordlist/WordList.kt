@@ -5,8 +5,6 @@ import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LE
 object WordList {
     private var wordList: List<String> = emptyList()
 
-    fun getWordList(): List<String> = wordList
-
     suspend fun initializeWordList() {
         try {
             wordList = DataMuseApiService
