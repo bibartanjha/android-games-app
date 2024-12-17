@@ -2,15 +2,13 @@ package com.example.android_games_app.games.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.android_games_app.games.ui.screens.games.Game2
-import com.example.android_games_app.games.ui.screens.games.Game3
+import com.example.android_games_app.games.game2.Game2Screen
+import com.example.android_games_app.games.game3.Game3Screen
 import com.example.android_games_app.games.wordle.view.WordleGameScreen
 import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
-import com.example.android_games_app.games.wordle.wordlist.WordList
 
 @Composable
 fun GamesNavigationGraph(
@@ -43,11 +41,11 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.GAME_2_SCREEN) {
-            Game2()
+            Game2Screen()
         }
 
         composable(Routes.GAME_3_SCREEN) {
-            Game3()
+            Game3Screen()
         }
     }
 
