@@ -39,16 +39,27 @@ fun GamesNavigationGraph(
                 wordleGameViewModel = wordleGameViewModel,
                 onPostGameOptionSelected = {
                     navController.navigate(it)
+                },
+                onBackClicked = {
+                    navController.navigate(Routes.HOME_SCREEN)
                 }
             )
         }
 
         composable(Routes.GAME_2_SCREEN) {
-            Game2Screen()
+            Game2Screen(
+                onBackClicked = {
+                    navController.navigate(Routes.HOME_SCREEN)
+                }
+            )
         }
 
         composable(Routes.GAME_3_SCREEN) {
-            Game3Screen()
+            Game3Screen(
+                onBackClicked = {
+                    navController.navigate(Routes.HOME_SCREEN)
+                }
+            )
         }
     }
 
