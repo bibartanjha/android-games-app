@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_games_app.games.ui.screens.GamesNavigationGraph
+import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
 import com.example.android_games_app.games.wordle.wordlist.WordList
 import kotlinx.coroutines.launch
 
@@ -28,6 +30,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun GamesApp() {
-        GamesNavigationGraph()
+        val wordleGameViewModel: WordleGameViewModel = viewModel()
+
+        GamesNavigationGraph(wordleGameViewModel)
     }
 }

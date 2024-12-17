@@ -13,7 +13,9 @@ import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
 import com.example.android_games_app.games.wordle.wordlist.WordList
 
 @Composable
-fun GamesNavigationGraph() {
+fun GamesNavigationGraph(
+    wordleGameViewModel: WordleGameViewModel
+) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
         composable(Routes.HOME_SCREEN) {
@@ -25,16 +27,12 @@ fun GamesNavigationGraph() {
         }
 
         composable(Routes.WORDLE_SCREEN) {
-            val wordleGameViewModel: WordleGameViewModel = viewModel()
-
             LaunchedEffect(Unit) {
-                try {
-                    val newWord = WordList.getRandomWordFromList()
-                    println("--- New word: $newWord")
-                    wordleGameViewModel.startNewGame(newWord)
-                } catch (e: Exception) {
-                    println("--- Error fetching word for Wordle: ${e.message}")
+                if (!wordleGameViewModel.getWordleGameState.value.gameInProgress) {
+                    // if the user is in the middle of the game and went back
+                    wordleGameViewModel.startNewGame()
                 }
+
             }
             WordleGameScreen(
                 wordleGameViewModel = wordleGameViewModel,

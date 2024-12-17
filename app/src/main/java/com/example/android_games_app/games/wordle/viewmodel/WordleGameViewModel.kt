@@ -6,6 +6,7 @@ import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LE
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
 import com.example.android_games_app.games.wordle.model.LetterGuess
 import com.example.android_games_app.games.wordle.model.WordleGameState
+import com.example.android_games_app.games.wordle.wordlist.WordList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -143,7 +144,16 @@ class WordleGameViewModel : ViewModel() {
         }
     }
 
-    fun startNewGame(newWord: String) {
+    fun startNewGame() {
+        var newWord = ""
+        try {
+            newWord = WordList.getRandomWordFromList()
+            println("--- New word: $newWord")
+        } catch (e: Exception) {
+            newWord = "ARISE" // fallback
+            println("--- Error fetching word for Wordle: ${e.message}")
+        }
+
         val lettersPlacements: MutableMap<Char, MutableSet<Int>> = HashMap()
         for (i in newWord.indices) {
             val letter = newWord[i]
