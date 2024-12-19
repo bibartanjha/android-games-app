@@ -34,8 +34,7 @@ import com.example.android_games_app.utils.GameProgressStatus
 @Composable
 fun WordleGameScreen(
     wordleGameViewModel: WordleGameViewModel,
-    onPostGameOptionSelected: (optionName: String) -> Unit,
-    onBackClicked: () -> Unit
+    onNavigateToOtherScreen: (optionName: String) -> Unit,
 ) {
     val gameState by wordleGameViewModel.getWordleGameState.collectAsState()
 
@@ -43,12 +42,15 @@ fun WordleGameScreen(
         topBar = {
             TopBarWithBackIcon(
                 gameName = "Wordle",
-                onIconClicked = onBackClicked
+                onIconClicked = {
+                    onNavigateToOtherScreen(Routes.HOME_SCREEN)
+                }
             )
         }
     ) { paddingValues ->
         Surface(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues),
             color = WORDLE_SCREEN_BG_COLOR
         ) {
@@ -139,7 +141,7 @@ fun WordleGameScreen(
                         if (it == "Start New Round") {
                             wordleGameViewModel.startNewGame()
                         } else if (it == "Return to Main Menu") {
-                            onPostGameOptionSelected(Routes.HOME_SCREEN)
+                            onNavigateToOtherScreen(Routes.HOME_SCREEN)
                         }
                     }
                 )
@@ -153,7 +155,6 @@ fun WordleGameScreen(
 fun WordleGameScreenPreview() {
     WordleGameScreen(
         wordleGameViewModel = WordleGameViewModel(),
-        onPostGameOptionSelected = {},
-        onBackClicked = {}
+        onNavigateToOtherScreen = {}
     )
 }

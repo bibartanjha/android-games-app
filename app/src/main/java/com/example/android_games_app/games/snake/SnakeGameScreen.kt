@@ -42,8 +42,7 @@ import com.example.android_games_app.utils.TopBarWithBackIcon
 @Composable
 fun SnakeGameScreen(
     snakeGameViewModel: SnakeGameViewModel,
-    onPostGameOptionSelected: (optionName: String) -> Unit,
-    onBackClicked: () -> Unit,
+    onNavigateToOtherScreen: (optionName: String) -> Unit,
 ) {
     val gameState by snakeGameViewModel.getSnakeGameState.collectAsState()
 
@@ -51,7 +50,12 @@ fun SnakeGameScreen(
         topBar = {
             TopBarWithBackIcon(
                 gameName = "Snake",
-                onIconClicked = onBackClicked
+                onIconClicked = {
+                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
+                        snakeGameViewModel.pauseGame()
+                    }
+                    onNavigateToOtherScreen(Routes.HOME_SCREEN)
+                }
             )
         }
     ) { paddingValues ->
@@ -234,8 +238,7 @@ fun SnakeGameScreen(
                         if (it == "Start New Round") {
                             snakeGameViewModel.startNewGame()
                         } else if (it == "Return to Main Menu") {
-                            snakeGameViewModel.startNewGame()
-                            onPostGameOptionSelected(Routes.HOME_SCREEN)
+                            onNavigateToOtherScreen(Routes.HOME_SCREEN)
                         }
                     }
                 )
@@ -249,7 +252,6 @@ fun SnakeGameScreen(
 fun SnakeGameScreenPreview() {
     SnakeGameScreen(
         snakeGameViewModel = SnakeGameViewModel(),
-        onPostGameOptionSelected = {},
-        onBackClicked = {},
+        onNavigateToOtherScreen = {}
     )
 }

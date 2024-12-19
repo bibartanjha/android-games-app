@@ -41,28 +41,28 @@ fun GamesNavigationGraph(
             }
             WordleGameScreen(
                 wordleGameViewModel = wordleGameViewModel,
-                onPostGameOptionSelected = {
+                onNavigateToOtherScreen = {
                     navController.navigate(it)
-                },
-                onBackClicked = {
-                    navController.navigate(Routes.HOME_SCREEN)
                 }
             )
         }
 
         composable(Routes.SNAKE_SCREEN) {
+            LaunchedEffect(Unit) {
+                if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus !in listOf(
+                        GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                    /**
+                    If the user is in the middle of the game and went back to the main menu,
+                    and then clicks back on Snake, then we don't want to start a new game
+                    Instead, we want the previous game state to be kept. That is why I added this if-check
+                     */
+                    snakeGameViewModel.startNewGame()
+                }
+            }
             SnakeGameScreen(
                 snakeGameViewModel = snakeGameViewModel,
-                onPostGameOptionSelected = {
+                onNavigateToOtherScreen = {
                     navController.navigate(it)
-                },
-                onBackClicked = {
-                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus in listOf(
-                        GameProgressStatus.IN_PROGRESS, GameProgressStatus.NOT_STARTED
-                    )) {
-                        snakeGameViewModel.pauseGame()
-                    }
-                    navController.navigate(Routes.HOME_SCREEN)
                 }
             )
         }

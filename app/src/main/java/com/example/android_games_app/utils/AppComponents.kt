@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.android_games_app.navigation.Routes
 
 @Composable
 fun BaseCard(
@@ -105,6 +104,31 @@ fun GamePauseOrCompleteScreen(
             )
     )
 
+    Menu(text, subTexts, cardBGColor, textColor, buttonTexts, onButtonSelection)
+}
+
+@Preview
+@Composable
+fun GamePauseOrCompleteScreenPreview() {
+    GamePauseOrCompleteScreen(
+        text = "Congrats on finishing the game!",
+        subTexts = listOf("You scored 33 points", "Pick a next option"),
+        cardBGColor = Color.Cyan,
+        textColor = Color.Black,
+        buttonTexts = listOf("Restart", "Resume"),
+        onButtonSelection = {}
+    )
+}
+
+@Composable
+fun Menu(
+    text: String,
+    subTexts: List<String> = emptyList(),
+    cardBGColor: Color,
+    textColor: Color,
+    buttonTexts: List<String>,
+    onButtonSelection: (buttonText: String) -> Unit
+) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     Column(
@@ -120,7 +144,7 @@ fun GamePauseOrCompleteScreen(
             colors = CardDefaults.cardColors(containerColor = cardBGColor),
             elevation = CardDefaults.cardElevation(4.dp),
 
-        ) {
+            ) {
             Column(
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -155,17 +179,15 @@ fun GamePauseOrCompleteScreen(
 
 @Preview
 @Composable
-fun GamePauseOrCompleteScreenPreview() {
-    GamePauseOrCompleteScreen(
-        text = "Congrats on finishing the game!",
-        subTexts = listOf("You scored 33 points", "Pick a next option"),
+fun MenuPreview() {
+    Menu(
+        text = "Menu",
         cardBGColor = Color.Cyan,
         textColor = Color.Black,
-        buttonTexts = listOf("Restart", "Resume"),
+        buttonTexts = listOf("Button1", "Button2"),
         onButtonSelection = {}
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
