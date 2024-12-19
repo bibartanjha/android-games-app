@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.ui.screens
+package com.example.android_games_app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,10 +6,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.android_games_app.games.game3.Game3Screen
-import com.example.android_games_app.games.snake.view.SnakeScreen
-import com.example.android_games_app.games.snake.viewmodel.SnakeGameViewModel
-import com.example.android_games_app.games.wordle.view.WordleGameScreen
-import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
+import com.example.android_games_app.games.snake.SnakeGameScreen
+import com.example.android_games_app.games.snake.SnakeGameViewModel
+import com.example.android_games_app.games.wordle.WordleGameScreen
+import com.example.android_games_app.games.wordle.WordleGameViewModel
+import com.example.android_games_app.homescreen.HomeScreen
+import com.example.android_games_app.utils.GameProgressStatus
 
 @Composable
 fun GamesNavigationGraph(
@@ -28,7 +30,7 @@ fun GamesNavigationGraph(
 
         composable(Routes.WORDLE_SCREEN) {
             LaunchedEffect(Unit) {
-                if (!wordleGameViewModel.getWordleGameState.value.gameInProgress) {
+                if (wordleGameViewModel.getWordleGameState.value.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
                     /**
                     If the user is in the middle of the game and went back to the main menu,
                     and then clicks back on Wordle, then we don't want to start a new game
@@ -49,11 +51,19 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.SNAKE_SCREEN) {
-            SnakeScreen(
-                onBackClicked = {
-                    navController.navigate(Routes.HOME_SCREEN)
+            SnakeGameScreen(
+                snakeGameViewModel = snakeGameViewModel,
+                onPostGameOptionSelected = {
+                    navController.navigate(it)
                 },
-                snakeGameViewModel = snakeGameViewModel
+                onBackClicked = {
+                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus in listOf(
+                        GameProgressStatus.IN_PROGRESS, GameProgressStatus.NOT_STARTED
+                    )) {
+                        snakeGameViewModel.pauseGame()
+                    }
+                    navController.navigate(Routes.HOME_SCREEN)
+                }
             )
         }
 

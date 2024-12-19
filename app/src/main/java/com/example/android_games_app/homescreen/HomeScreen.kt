@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.ui.screens
+package com.example.android_games_app.homescreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.android_games_app.games.ui.BaseCard
+import com.example.android_games_app.navigation.Routes
+import com.example.android_games_app.utils.BaseCard
 
 @Composable
 fun HomeScreen(
@@ -46,7 +47,11 @@ fun HomeScreen(
             val optionCardWidth = screenWidth / 3
             val optionCardTextSize = (optionCardWidth/7.22)
 
-            val gameOptions = listOf(Routes.WORDLE_SCREEN, Routes.SNAKE_SCREEN, Routes.GAME_3_SCREEN)
+            val gameOptions = listOf(
+                Routes.WORDLE_SCREEN,
+                Routes.SNAKE_SCREEN,
+                Routes.GAME_3_SCREEN
+            )
 
             for (option in gameOptions) {
                 BaseCard(

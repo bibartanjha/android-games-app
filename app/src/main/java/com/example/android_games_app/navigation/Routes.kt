@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.ui.screens
+package com.example.android_games_app.navigation
 
 object Routes {
     const val HOME_SCREEN = "MainMenu"

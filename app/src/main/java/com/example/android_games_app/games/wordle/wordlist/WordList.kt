@@ -1,5 +1,6 @@
 package com.example.android_games_app.games.wordle.wordlist
 
+import android.util.Log
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
 
 object WordList {
@@ -10,9 +11,9 @@ object WordList {
             wordList = DataMuseApiService
                 .getWords(NUM_LETTERS_IN_WORD, 500)
                 .map { it.word.uppercase() }
-            println("--- Word list initialized successfully")
+            Log.d("Wordle Log", "--- Word list initialized successfully")
         } catch (e: Exception) {
-            println("--- Error initializing word list: ${e.message}")
+            Log.d("Wordle Log", "--- Error initializing word list: ${e.message}")
         }
     }
 

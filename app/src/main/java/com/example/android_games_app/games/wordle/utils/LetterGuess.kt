@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.wordle.model
+package com.example.android_games_app.games.wordle.utils
 
 import androidx.compose.ui.graphics.Color
 

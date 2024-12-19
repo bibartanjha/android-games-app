@@ -8,9 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.android_games_app.games.snake.viewmodel.SnakeGameViewModel
-import com.example.android_games_app.games.ui.screens.GamesNavigationGraph
-import com.example.android_games_app.games.wordle.viewmodel.WordleGameViewModel
+import com.example.android_games_app.games.snake.SnakeGameViewModel
+import com.example.android_games_app.navigation.GamesNavigationGraph
+import com.example.android_games_app.games.wordle.WordleGameViewModel
 import com.example.android_games_app.games.wordle.wordlist.WordList
 import kotlinx.coroutines.launch
 
@@ -19,18 +19,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-
-        lifecycleScope.launch {
-            WordList.initializeWordList() // doing this here because I want it only to be initialized once in the entire app lifecycle
-        }
+        initializeDataForGames()
 
         setContent {
             GamesApp()
         }
     }
 
+    private fun initializeDataForGames() {
+        lifecycleScope.launch {
+            WordList.initializeWordList() // doing this here because I want it only to be initialized once in the entire app lifecycle
+        }
+    }
+
     @Composable
     fun GamesApp() {
+        // note to self: creating the view model here so that even if the user goes back to the main screen, then their guesses get saved
         val wordleGameViewModel: WordleGameViewModel = viewModel()
         val snakeGameViewModel: SnakeGameViewModel = viewModel()
 

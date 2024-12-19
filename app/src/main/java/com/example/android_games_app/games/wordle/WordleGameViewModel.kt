@@ -1,12 +1,13 @@
-package com.example.android_games_app.games.wordle.viewmodel
+package com.example.android_games_app.games.wordle
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
-import com.example.android_games_app.games.wordle.model.LetterGuess
-import com.example.android_games_app.games.wordle.model.WordleGameState
+import com.example.android_games_app.games.wordle.utils.LetterGuess
 import com.example.android_games_app.games.wordle.wordlist.WordList
+import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -59,6 +60,9 @@ class WordleGameViewModel : ViewModel() {
 
     fun addLetter(newLetter: String) {
         val gameState = wordleGameState.value
+        if (gameState.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+            return
+        }
         val currentGuessLetterIndex = gameState.currentGuessLetterIndex
         if (currentGuessLetterIndex < NUM_LETTERS_IN_WORD) {
             val updatedLetterGuessList = updateListWithNewLetter(
@@ -75,6 +79,9 @@ class WordleGameViewModel : ViewModel() {
 
     fun removeLetter() {
         val gameState = wordleGameState.value
+        if (gameState.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+            return
+        }
         val currentGuessLetterIndex = gameState.currentGuessLetterIndex
         if (currentGuessLetterIndex > 0) {
             val updatedLetterGuessList = updateListWithNewLetter(
@@ -91,6 +98,9 @@ class WordleGameViewModel : ViewModel() {
 
     fun handleEnter() {
         val gameState = wordleGameState.value
+        if (gameState.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+            return
+        }
         if (gameState.currentGuessLetterIndex == NUM_LETTERS_IN_WORD) {
             val userSubmittedWord = gameState.letterGuessValues[gameState.currentGuessNumber]
                 .joinToString("") { it.currentLetter }
@@ -112,34 +122,27 @@ class WordleGameViewModel : ViewModel() {
                 }
             }
 
-
-            var updatedGameInProgress = gameState.gameInProgress
-            var updatedGuessedWordSuccessfully = gameState.guessedWordSuccessfully
+            var updatedGameProgressStatus = gameState.gameProgressStatus
 
             var updatedGuessNumber = gameState.currentGuessNumber
             var currentGuessLetterIndex = gameState.currentGuessLetterIndex
 
             if (guessValidity.all { it == 2 }) {
                 // all letters guessed correctly
-                updatedGameInProgress = false
-                updatedGuessedWordSuccessfully = true
+                updatedGameProgressStatus = GameProgressStatus.WON
+            } else if (gameState.currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
+                // no more guesses left
+                updatedGameProgressStatus = GameProgressStatus.LOST
             } else {
-                if (gameState.currentGuessNumber == (NUM_POSSIBLE_GUESSES - 1)) {
-                    // no more guesses left
-                    updatedGameInProgress = false
-                    updatedGuessedWordSuccessfully = false
-                } else {
-                    updatedGuessNumber += 1
-                    currentGuessLetterIndex = 0
-                }
+                updatedGuessNumber += 1
+                currentGuessLetterIndex = 0
             }
 
             wordleGameState.value = gameState.copy(
                 letterGuessValues = updatedLetterGuessValues,
                 currentGuessNumber = updatedGuessNumber,
                 currentGuessLetterIndex = currentGuessLetterIndex,
-                gameInProgress = updatedGameInProgress,
-                guessedWordSuccessfully = updatedGuessedWordSuccessfully,
+                gameProgressStatus = updatedGameProgressStatus
             )
         }
     }
@@ -148,10 +151,10 @@ class WordleGameViewModel : ViewModel() {
         var newWord = ""
         try {
             newWord = WordList.getRandomWordFromList()
-            println("--- New word: $newWord")
+            Log.d("Wordle Log","--- New word: $newWord")
         } catch (e: Exception) {
             newWord = "ARISE" // fallback
-            println("--- Error fetching word for Wordle: ${e.message}")
+            Log.d("Wordle Log","--- Error fetching word for Wordle: ${e.message}")
         }
 
         val lettersPlacements: MutableMap<Char, MutableSet<Int>> = HashMap()
@@ -166,8 +169,7 @@ class WordleGameViewModel : ViewModel() {
             letterGuessValues = List(NUM_POSSIBLE_GUESSES) { MutableList(NUM_LETTERS_IN_WORD) { LetterGuess() } },
             currentGuessNumber = 0,
             currentGuessLetterIndex = 0,
-            gameInProgress = true,
-            guessedWordSuccessfully = false,
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
 }

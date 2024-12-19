@@ -1,4 +1,4 @@
-package com.example.android_games_app.games.wordle.view
+package com.example.android_games_app.games.wordle.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
