@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.DIM_SIZE
 import com.example.android_games_app.games.twentyfortyeight.utils.GridFunctions
+import com.example.android_games_app.games.twentyfortyeight.utils.GridTile
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,10 @@ class TwentyFortyEightGameViewModel: ViewModel() {
             SwipeDirection.NONE -> gameStateValue.gameGrid
         }
 
+//        for (row in updatedGrid) {
+//            Log.d("2048 Log", "--- UpdatedGrid: $updatedGrid")
+//        }
+
         var updatedGameStatus = gameStateValue.gameProgressStatus
 
         val tilesWith2048 = GridFunctions.getAllTilesWithValue(updatedGrid, 2048)
@@ -37,7 +42,9 @@ class TwentyFortyEightGameViewModel: ViewModel() {
                 updatedGameStatus = GameProgressStatus.LOST
             } else {
                 val randomTile = tilesWithZero.random()
-                updatedGrid[randomTile.first][randomTile.second] = 2
+                updatedGrid[randomTile.first][randomTile.second].value = 2
+                updatedGrid[randomTile.first][randomTile.second] =
+                    GridTile(value = 2, position = Pair(randomTile.first, randomTile.second))
             }
         }
 
@@ -52,8 +59,15 @@ class TwentyFortyEightGameViewModel: ViewModel() {
     }
 
     fun startNewGame() {
-        val newGrid = List(DIM_SIZE) { MutableList(DIM_SIZE) { 0 } }
-        newGrid[Random.nextInt(DIM_SIZE)][Random.nextInt(DIM_SIZE)] = 2
+        val newGrid = List(DIM_SIZE) { MutableList(DIM_SIZE) { GridTile() } }
+        for (row in newGrid.indices) {
+            for (col in newGrid.indices) {
+                newGrid[row][col].position = Pair(row, col)
+            }
+        }
+        val randomRow = Random.nextInt(DIM_SIZE)
+        val randomCol = Random.nextInt(DIM_SIZE)
+        newGrid[randomRow][randomCol] = GridTile(value = 2, position = randomRow to randomCol)
 
 
         gameState.value = gameState.value.copy(

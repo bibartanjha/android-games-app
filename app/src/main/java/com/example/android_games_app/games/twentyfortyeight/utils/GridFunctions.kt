@@ -1,27 +1,28 @@
 package com.example.android_games_app.games.twentyfortyeight.utils
 
+import android.util.Log
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.DIM_SIZE
 
 object GridFunctions {
     fun shiftGridUp(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         var tempGrid = rotateCounterClockwise(grid)
         tempGrid = moveTilesLeftAndMerge(tempGrid)
         return rotateClockwise(tempGrid)
     }
 
     fun shiftGridDown(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         var tempGrid = rotateClockwise(grid)
         tempGrid = moveTilesLeftAndMerge(tempGrid)
         return rotateCounterClockwise(tempGrid)
     }
 
     fun shiftGridRight(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         var tempGrid = rotateClockwise(grid)
         tempGrid = rotateClockwise(tempGrid)
         tempGrid = moveTilesLeftAndMerge(tempGrid)
@@ -30,29 +31,29 @@ object GridFunctions {
     }
 
     fun shiftGridLeft(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         return moveTilesLeftAndMerge(grid)
     }
 
     fun rotateClockwise(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         val transposedGrid = transpose(grid)
         return reverseRows(transposedGrid)
     }
 
     fun rotateCounterClockwise(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         val reversedGrid = reverseRows(grid)
         return transpose(reversedGrid)
     }
 
     fun transpose(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
-        val transposedGrid = List(grid.size) { MutableList(grid.size) { 0 } }
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
+        val transposedGrid = List(grid.size) { MutableList(grid.size) { GridTile() } }
         for (row in 0..<DIM_SIZE) {
             transposedGrid[row][row] = grid[row][row]
             for (col in (row + 1)..<DIM_SIZE) {
@@ -64,8 +65,8 @@ object GridFunctions {
     }
 
     fun reverseRows(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         return grid.map {
             it.toMutableList().apply {
                 reverse()
@@ -73,35 +74,48 @@ object GridFunctions {
     }
 
     fun moveTilesLeftAndMerge(
-        grid: List<MutableList<Int>>
-    ): List<MutableList<Int>> {
+        grid: List<MutableList<GridTile>>
+    ): List<MutableList<GridTile>> {
         return grid.map { row ->
-            val newRow = MutableList(DIM_SIZE) { 0 }
+            val newRow = MutableList(DIM_SIZE) { GridTile() }
             var currIndexInNewRow = 0
             for (col in row.indices) {
-                val tileValue = row[col]
+                newRow[col].position = row[col].position
+
+                val tileValue = row[col].value
                 if (tileValue != 0) {
-                    newRow[currIndexInNewRow] = tileValue
+                    newRow[currIndexInNewRow].value = tileValue
                     currIndexInNewRow += 1
                 }
             }
 
             var i = 0
             while (i < newRow.size - 1) {
-                if (newRow[i] == newRow[i + 1]) {
-                    newRow[i] *= 2
-                    newRow[i + 1] = 0
+                if (newRow[i].value > 0 && newRow[i].value == newRow[i + 1].value) {
+                    newRow[i].value *= 2
+                    newRow[i + 1].value = 0
+
+                    newRow[i].hadRecentMerge = true
+                    newRow[i + 1].hadRecentMerge = false
+
                     i += 1
+                } else {
+                    newRow[i].hadRecentMerge = false
                 }
                 i += 1
             }
 
-            val newRow2 = MutableList(DIM_SIZE) { 0 }
+            newRow[newRow.size - 1].hadRecentMerge = false
+
+            val newRow2 = MutableList(DIM_SIZE) { GridTile() }
             var currIndexInNewRow2 = 0
             for (col in newRow.indices) {
-                val tileValue = newRow[col]
+                newRow2[col].hadRecentMerge = newRow[col].hadRecentMerge
+                newRow2[col].position = newRow[col].position
+
+                val tileValue = newRow[col].value
                 if (tileValue != 0) {
-                    newRow2[currIndexInNewRow2] = tileValue
+                    newRow2[currIndexInNewRow2].value = tileValue
                     currIndexInNewRow2 += 1
                 }
             }
@@ -111,7 +125,7 @@ object GridFunctions {
     }
 
     fun containsAdjacentTilesWithEqualValue(
-        grid: List<MutableList<Int>>
+        grid: List<MutableList<GridTile>>
     ): Boolean {
         for (row in grid.indices) {
             for (col in grid[row].indices) {
@@ -131,13 +145,13 @@ object GridFunctions {
     }
 
     fun getAllTilesWithValue(
-        grid: List<MutableList<Int>>,
+        grid: List<MutableList<GridTile>>,
         valueToSearchFor: Int
     ): MutableList<Pair<Int, Int>> {
         val indicesWithValue = mutableListOf<Pair<Int, Int>>()
         for (row in grid.indices) {
             for (col in grid[row].indices) {
-                if (grid[row][col] == valueToSearchFor) {
+                if (grid[row][col].value == valueToSearchFor) {
                     indicesWithValue.add(Pair(row, col))
                 }
             }
