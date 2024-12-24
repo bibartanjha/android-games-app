@@ -133,18 +133,21 @@ fun TwentyFortyEightGameScreen(
                                 ),
                                 style = Stroke(width = 1.dp.toPx())
                             )
-                            drawText(
-                                textMeasurer = textMeasurer,
-                                text = gameState.gameGrid[row][col].toString(),
-                                style = TextStyle(
-                                    fontSize = (dimensionGridCell/4).sp,
-                                    color = Color.Black,
-                                ),
-                                topLeft = Offset(
-                                    horizontalMarginAroundGameBoard + (col * dimensionGridCell),
-                                    verticalMarginAroundGameBoard + (row * dimensionGridCell)
+                            if (gameState.gameGrid[row][col] != 0) {
+                                drawText(
+                                    textMeasurer = textMeasurer,
+                                    text = gameState.gameGrid[row][col].toString(),
+                                    style = TextStyle(
+                                        fontSize = (dimensionGridCell/4).sp,
+                                        color = Color.Black,
+                                    ),
+                                    topLeft = Offset(
+                                        horizontalMarginAroundGameBoard + (col * dimensionGridCell),
+                                        verticalMarginAroundGameBoard + (row * dimensionGridCell)
+                                    )
                                 )
-                            )
+                            }
+
                         }
                     }
                 }
