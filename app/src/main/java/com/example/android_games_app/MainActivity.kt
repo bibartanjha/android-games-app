@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_games_app.games.snake.SnakeGameViewModel
+import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGameViewModel
 import com.example.android_games_app.navigation.GamesNavigationGraph
 import com.example.android_games_app.games.wordle.WordleGameViewModel
 import com.example.android_games_app.games.wordle.wordlist.WordList
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
         // note to self: creating the view model here so that even if the user goes back to the main screen, then their guesses get saved
         val wordleGameViewModel: WordleGameViewModel = viewModel()
         val snakeGameViewModel: SnakeGameViewModel = viewModel()
+        val twentyFortyEightGameViewModel: TwentyFortyEightGameViewModel = viewModel()
 
-        GamesNavigationGraph(wordleGameViewModel, snakeGameViewModel)
+        GamesNavigationGraph(wordleGameViewModel, snakeGameViewModel, twentyFortyEightGameViewModel)
     }
 }

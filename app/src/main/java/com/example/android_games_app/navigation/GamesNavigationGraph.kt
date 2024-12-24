@@ -5,9 +5,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.android_games_app.games.game3.Game3Screen
 import com.example.android_games_app.games.snake.SnakeGameScreen
 import com.example.android_games_app.games.snake.SnakeGameViewModel
+import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGameScreen
+import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGameViewModel
 import com.example.android_games_app.games.wordle.WordleGameScreen
 import com.example.android_games_app.games.wordle.WordleGameViewModel
 import com.example.android_games_app.homescreen.HomeScreen
@@ -16,7 +17,8 @@ import com.example.android_games_app.utils.GameProgressStatus
 @Composable
 fun GamesNavigationGraph(
     wordleGameViewModel: WordleGameViewModel,
-    snakeGameViewModel: SnakeGameViewModel
+    snakeGameViewModel: SnakeGameViewModel,
+    twentyFortyEightGameViewModel: TwentyFortyEightGameViewModel
 ) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
@@ -67,10 +69,14 @@ fun GamesNavigationGraph(
             )
         }
 
-        composable(Routes.GAME_3_SCREEN) {
-            Game3Screen(
-                onBackClicked = {
-                    navController.navigate(Routes.HOME_SCREEN)
+        composable(Routes.TWENTYFORTYEIGHT_SCREEN) {
+            LaunchedEffect(Unit) {
+                twentyFortyEightGameViewModel.startNewGame()
+            }
+            TwentyFortyEightGameScreen(
+                twentyFortyEightGameViewModel = twentyFortyEightGameViewModel,
+                onNavigateToOtherScreen = {
+                    navController.navigate(it)
                 }
             )
         }

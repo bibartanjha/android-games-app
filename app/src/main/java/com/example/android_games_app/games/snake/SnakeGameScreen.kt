@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.example.android_games_app.games.snake.utils.SnakeDirection
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_COLS
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_ROWS
+import com.example.android_games_app.games.snake.utils.SnakeFixedValues.SNAKE_GAME_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.BaseCard
 import com.example.android_games_app.utils.GamePauseOrCompleteScreen
@@ -63,7 +64,7 @@ fun SnakeGameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            color = Color(red = 215, green = 42, blue = 120, alpha = 255)
+            color = SNAKE_GAME_SCREEN_BG_COLOR
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -122,11 +123,11 @@ fun SnakeGameScreen(
                     }
 
                     val snakeCoordinates = gameState.snakeCoordinates
+
                     /**
                      * Note to self: doing this backwards so that the head gets drawn last
                      * That way, if the snake collides with itself, then the head (or index 0) color still gets shown
                      */
-
                     for (snakePointIndex in (snakeCoordinates.size - 1) downTo 0) {
                         var color = Color(red = 14, green = 152, blue = 12, alpha = 255)
                         if (snakePointIndex == 0) {

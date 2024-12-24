@@ -7,5 +7,5 @@ object Routes {
 
     const val SNAKE_SCREEN = "Snake"
 
-    const val GAME_3_SCREEN = "Game3"
+    const val TWENTYFORTYEIGHT_SCREEN = "2048"
 }

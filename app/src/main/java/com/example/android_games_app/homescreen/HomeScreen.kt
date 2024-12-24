@@ -50,7 +50,7 @@ fun HomeScreen(
             val gameOptions = listOf(
                 Routes.WORDLE_SCREEN,
                 Routes.SNAKE_SCREEN,
-                Routes.GAME_3_SCREEN
+                Routes.TWENTYFORTYEIGHT_SCREEN
             )
 
             for (option in gameOptions) {
