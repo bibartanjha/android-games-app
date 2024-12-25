@@ -9,11 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.R
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.BaseCard
+import com.example.android_games_app.utils.ImageCard
 
 @Composable
 fun HomeScreen(
@@ -45,22 +48,20 @@ fun HomeScreen(
                 textSize = headerTextSize.sp
             )
             val optionCardWidth = screenWidth / 3
-            val optionCardTextSize = (optionCardWidth/7.22)
 
             val gameOptions = listOf(
-                Routes.WORDLE_SCREEN,
-                Routes.SNAKE_SCREEN,
-                Routes.TWENTYFORTYEIGHT_SCREEN
+                painterResource(R.drawable.wordle) to Routes.WORDLE_SCREEN,
+                painterResource(R.drawable.snake) to Routes.SNAKE_SCREEN,
+                painterResource(R.drawable.twentyfortyeight) to Routes.TWENTYFORTYEIGHT_SCREEN,
             )
 
             for (option in gameOptions) {
-                BaseCard(
-                    textValue = option,
+                ImageCard(
                     cardWidth = optionCardWidth.dp,
                     cardHeight = optionCardWidth.dp,
-                    textSize = optionCardTextSize.sp,
+                    painter = option.first,
                     onBaseCardClicked = {
-                        onOptionSelected(option)
+                        onOptionSelected(option.second)
                     }
                 )
             }

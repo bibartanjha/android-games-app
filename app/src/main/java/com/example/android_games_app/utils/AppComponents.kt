@@ -1,5 +1,6 @@
 package com.example.android_games_app.utils
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,13 +30,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.R
 
 @Composable
 fun BaseCard(
@@ -82,6 +86,47 @@ fun BaseCard(
 fun BaseCardPreview() {
     BaseCard(
         textValue = "Base Card"
+    )
+}
+
+@Composable
+fun ImageCard(
+    cardWidth: Dp = 100.dp,
+    cardHeight: Dp = 100.dp,
+    painter: Painter,
+    backgroundColor: Color = Color.Unspecified,
+    onBaseCardClicked: (() -> Unit)? = null,
+) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .padding(24.dp)
+            .width(cardWidth)
+            .height(cardHeight),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(enabled = onBaseCardClicked != null) {
+                    onBaseCardClicked?.invoke()
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ImageCardPreview() {
+    ImageCard(
+        painter = painterResource(R.drawable.snake)
     )
 }
 
