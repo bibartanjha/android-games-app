@@ -77,14 +77,14 @@ fun SnakeGameScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Row (
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Score: ${gameState.currentScore}",
-                        color = Color.Black,
+                        color = Color.White,
                         fontWeight = FontWeight.W800,
                         modifier = Modifier
-                            .border(2.dp, Color.Black, shape = RoundedCornerShape(4.dp))
+                            .border(2.dp, Color.White, shape = RoundedCornerShape(4.dp))
                             .padding(horizontal = 30.dp, vertical = 10.dp),
                     )
                     Spacer(modifier = Modifier.weight(1f))
