@@ -95,9 +95,17 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         )
     }
 
-    fun resetTileMergeFlag(row: Int, col: Int) {
+    fun resetHadRecentMerge(row: Int, col: Int) {
         val updatedGrid = gameState.value.gameGrid
         updatedGrid[row][col].hadRecentMerge = false
+        gameState.value = gameState.value.copy(
+            gameGrid = updatedGrid
+        )
+    }
+
+    fun resetIsNewTile(row: Int, col: Int) {
+        val updatedGrid = gameState.value.gameGrid
+        updatedGrid[row][col].isNewTile = false
         gameState.value = gameState.value.copy(
             gameGrid = updatedGrid
         )

@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
@@ -55,8 +56,6 @@ fun TwentyFortyEightGameScreen(
     onNavigateToOtherScreen: (optionName: String) -> Unit
 ) {
     val gameState by twentyFortyEightGameViewModel.getGameState.collectAsState()
-
-    Log.d("2048 Debug", "GameState Recomposition: $gameState")
 
     Scaffold(
         topBar = {
@@ -102,8 +101,8 @@ fun TwentyFortyEightGameScreen(
                                     change.consume()
                                 },
                                 onDragEnd = {
-                                    Log.d("2048 Log","--- $totalDragX")
-                                    Log.d("2048 Log","--- $totalDragY")
+//                                    Log.d("2048 Log","--- $totalDragX")
+//                                    Log.d("2048 Log","--- $totalDragY")
                                     val swipeDirection =
                                         if (abs(totalDragX) > abs(totalDragY)) {
                                             if (totalDragX > 0) {
@@ -118,7 +117,7 @@ fun TwentyFortyEightGameScreen(
                                                 SwipeDirection.UP
                                             }
                                         }
-                                    Log.d("2048 Log","--- $swipeDirection")
+//                                    Log.d("2048 Log","--- $swipeDirection")
                                     totalDragX = 0F
                                     totalDragY = 0F
                                     twentyFortyEightGameViewModel.userMove(swipeDirection)
@@ -140,60 +139,72 @@ fun TwentyFortyEightGameScreen(
                                 for (col in gameState.gameGrid[row].indices) {
                                     val tile = gameState.gameGrid[row][col]
 
-                                    val animatedSize = remember { Animatable(dimensionGridCell) }
+                                    val animatedScaleFactor = remember { Animatable(if (tile.isNewTile) 0.7f else 1f) }
 
                                     LaunchedEffect(tile) {
                                         if (tile.hadRecentMerge) {
-                                            animatedSize.animateTo(
-                                                targetValue = dimensionGridCell * 1.1f,
-                                                animationSpec = tween(durationMillis = 250)
+                                            animatedScaleFactor.animateTo(
+                                                targetValue = 1.1f,
+                                                animationSpec = tween(durationMillis = 150)
                                             )
-                                            animatedSize.animateTo(
-                                                targetValue = dimensionGridCell,
-                                                animationSpec = tween(durationMillis = 250)
+                                            animatedScaleFactor.animateTo(
+                                                targetValue = 1f,
+                                                animationSpec = tween(durationMillis = 150)
                                             )
 
-                                            twentyFortyEightGameViewModel.resetTileMergeFlag(row, col)
+                                            twentyFortyEightGameViewModel.resetHadRecentMerge(row, col)
+                                        }
+                                        else if (tile.isNewTile) {
+                                            animatedScaleFactor.snapTo(0.7f)
+                                            animatedScaleFactor.animateTo(
+                                                targetValue = 1f,
+                                                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                                            )
+                                            twentyFortyEightGameViewModel.resetIsNewTile(row, col)
                                         }
                                     }
 
                                     Box(
                                         modifier = Modifier
-                                            .size(animatedSize.value.dp)
+                                            .size(dimensionGridCell.dp)
                                             .background(
-                                                color = TileFunctions.getBackgroundColor(tile.value),
+                                                color = TileFunctions.getBackgroundColor(0),
                                                 shape = RoundedCornerShape(6.dp)
-                                            )
-                                            .then(
-                                                if (tile.isNewTile) {
-                                                    Modifier.border(
-                                                        width = 2.dp,
-                                                        color = Color.Magenta,
-                                                        shape = RoundedCornerShape(6.dp)
-                                                    )
-                                                } else {
-                                                    Modifier
-                                                }
                                             )
                                         ,
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        if (tile.value != 0) {
-                                            val numDigits = tile.value.toString().length
-                                            val fontSize = when (numDigits) {
-                                                1 -> (dimensionGridCell / 4).sp
-                                                2 -> (dimensionGridCell / 4.5).sp
-                                                3 -> (dimensionGridCell / 5).sp
-                                                else -> (dimensionGridCell / 6).sp
-                                            }
+                                        Box(
+                                            modifier = Modifier
+                                                .graphicsLayer(
+                                                    scaleX = animatedScaleFactor.value,
+                                                    scaleY = animatedScaleFactor.value
+                                                )
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = TileFunctions.getBackgroundColor(tile.value),
+                                                    shape = RoundedCornerShape(6.dp)
+                                                )
+                                            ,
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (tile.value != 0) {
+                                                val numDigits = tile.value.toString().length
+                                                val fontSize = when (numDigits) {
+                                                    1 -> (dimensionGridCell / 4).sp
+                                                    2 -> (dimensionGridCell / 4.5).sp
+                                                    3 -> (dimensionGridCell / 5).sp
+                                                    else -> (dimensionGridCell / 6).sp
+                                                }
 
-                                            Text(
-                                                text = tile.value.toString(),
-                                                color = Color.Black,
-                                                fontSize = fontSize,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
+                                                Text(
+                                                    text = tile.value.toString(),
+                                                    color = Color.Black,
+                                                    fontSize = fontSize * animatedScaleFactor.value,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                            }
                                         }
                                     }
                                 }
