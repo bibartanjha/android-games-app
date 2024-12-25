@@ -33,24 +33,48 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
         var updatedGameStatus = gameStateValue.gameProgressStatus
 
-        val tilesWith2048 = GridFunctions.getAllTilesWithValue(updatedGrid, 2048)
-        if (tilesWith2048.isNotEmpty()) {
-            updatedGameStatus = GameProgressStatus.WON
-        } else {
-            val tilesWithZero = GridFunctions.getAllTilesWithValue(updatedGrid, 0)
-            if (tilesWithZero.isEmpty() && (!GridFunctions.containsAdjacentTilesWithEqualValue(updatedGrid))) {
-                updatedGameStatus = GameProgressStatus.LOST
-            } else {
-                val randomTile = tilesWithZero.random()
-                updatedGrid[randomTile.first][randomTile.second].value = 2
-                updatedGrid[randomTile.first][randomTile.second] =
-                    GridTile(value = 2, position = Pair(randomTile.first, randomTile.second))
+        val tilesWith2048 = mutableListOf<Pair<Int, Int>>()
+        val tilesWithZero = mutableListOf<Pair<Int, Int>>()
+        var containsAdjacentTilesWithEqualValue = false
+
+        for (row in updatedGrid.indices) {
+            for (col in updatedGrid[row].indices) {
+                updatedGrid[row][col].isNewTile = false
+
+                if (updatedGrid[row][col].value == 2048) {
+                    tilesWith2048.add(Pair(row, col))
+                } else if (updatedGrid[row][col].value == 0) {
+                    tilesWithZero.add(Pair(row, col))
+                }
+
+                if (!containsAdjacentTilesWithEqualValue) { // note to self: adding this check because if it is already true, then no need to check any more
+                    if ((row + 1) < updatedGrid.size) {
+                        if (updatedGrid[row][col] == updatedGrid[row + 1][col]) {
+                            containsAdjacentTilesWithEqualValue = true
+                        }
+                    }
+                    if ((col + 1) < updatedGrid[row].size) {
+                        if (updatedGrid[row][col] == updatedGrid[row][col + 1]) {
+                            containsAdjacentTilesWithEqualValue = true
+                        }
+                    }
+                }
             }
         }
 
-//        for (row in updatedGrid.getTiles().indices) {
-//            Log.d("2048 Log", "--- Row $row: ${updatedGrid.getTiles()[row]}")
-//        }
+        if (tilesWith2048.isNotEmpty()) {
+            updatedGameStatus = GameProgressStatus.WON
+        } else {
+            if (tilesWithZero.isEmpty() && (!containsAdjacentTilesWithEqualValue)) {
+                updatedGameStatus = GameProgressStatus.LOST
+            } else {
+                val randomTile = tilesWithZero.random()
+                updatedGrid[randomTile.first][randomTile.second] = GridTile(
+                    value = 2,
+                    isNewTile = true
+                )
+            }
+        }
 
         gameState.value = gameStateValue.copy(
             gameGrid = updatedGrid,
@@ -60,19 +84,22 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
     fun startNewGame() {
         val newGrid = List(DIM_SIZE) { MutableList(DIM_SIZE) { GridTile() } }
-        for (row in newGrid.indices) {
-            for (col in newGrid.indices) {
-                newGrid[row][col].position = Pair(row, col)
-            }
-        }
         val randomRow = Random.nextInt(DIM_SIZE)
         val randomCol = Random.nextInt(DIM_SIZE)
-        newGrid[randomRow][randomCol] = GridTile(value = 2, position = randomRow to randomCol)
+        newGrid[randomRow][randomCol] = GridTile(value = 2)
 
 
         gameState.value = gameState.value.copy(
             gameGrid = newGrid,
             gameProgressStatus = GameProgressStatus.NOT_STARTED
+        )
+    }
+
+    fun resetTileMergeFlag(row: Int, col: Int) {
+        val updatedGrid = gameState.value.gameGrid
+        updatedGrid[row][col].hadRecentMerge = false
+        gameState.value = gameState.value.copy(
+            gameGrid = updatedGrid
         )
     }
 

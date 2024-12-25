@@ -8,8 +8,7 @@ data class GameState (
     val gameGrid: List<MutableList<GridTile>> =
         List(DIM_SIZE) { MutableList(DIM_SIZE) {
             GridTile(
-                value = 0,
-                position = it to it
+                value = 0
             )
         } },
     val gameProgressStatus: GameProgressStatus = GameProgressStatus.NOT_STARTED

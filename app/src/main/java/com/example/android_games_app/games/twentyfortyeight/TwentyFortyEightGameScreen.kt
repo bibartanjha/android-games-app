@@ -2,42 +2,50 @@ package com.example.android_games_app.games.twentyfortyeight
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.GRID_COLS
-import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.GRID_ROWS
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.SCREEN_BG_COLOR
+import com.example.android_games_app.games.twentyfortyeight.utils.GridTile
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.games.twentyfortyeight.utils.TileFunctions
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.TopBarWithBackIcon
+import kotlinx.coroutines.delay
 import kotlin.math.abs
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -66,24 +74,26 @@ fun TwentyFortyEightGameScreen(
                 .padding(paddingValues),
             color = SCREEN_BG_COLOR
         ) {
+            val configuration = LocalConfiguration.current
+            val screenWidth = configuration.screenWidthDp
+            val dimensionGridCell = (screenWidth/4.5).toFloat()
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp
-                val screenHeight = configuration.screenHeightDp
 
                 var totalDragX = 0f
                 var totalDragY = 0f
 
-                val textMeasurer = rememberTextMeasurer()
-
-                Canvas(
-                    modifier = Modifier
-                        .width(screenWidth.dp)
-                        .height((screenHeight*.6).dp)
+                Box(
+                    Modifier
+                        .padding(8.dp)
+                        .background(
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(6.dp)
+                        )
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDrag = { change, dragAmount ->
@@ -116,61 +126,79 @@ fun TwentyFortyEightGameScreen(
                             )
                         }
                 ) {
-                    val canvasWidth = size.width
 
-                    val dimensionGridCell = (canvasWidth/4.5).toFloat()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        for (row in gameState.gameGrid.indices) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+                            ) {
+                                for (col in gameState.gameGrid[row].indices) {
+                                    val tile = gameState.gameGrid[row][col]
 
-                    val totalWidthOfGameBoard = dimensionGridCell * GRID_COLS
-                    val totalHeightOfGameBoard = dimensionGridCell * GRID_ROWS
+                                    val animatedSize = remember { Animatable(dimensionGridCell) }
 
-                    val horizontalMarginAroundGameBoard = (canvasWidth - totalWidthOfGameBoard) / 2
-                    val verticalMarginAroundGameBoard = 10.toFloat()
+                                    LaunchedEffect(tile) {
+                                        if (tile.hadRecentMerge) {
+                                            animatedSize.animateTo(
+                                                targetValue = dimensionGridCell * 1.1f,
+                                                animationSpec = tween(durationMillis = 250)
+                                            )
+                                            animatedSize.animateTo(
+                                                targetValue = dimensionGridCell,
+                                                animationSpec = tween(durationMillis = 250)
+                                            )
 
-                    gameState.gameGrid.flatten().forEach { tile ->
-                        val topLeftOfRect = Offset(
-                            horizontalMarginAroundGameBoard + (tile.position.second * dimensionGridCell),
-                            verticalMarginAroundGameBoard + (tile.position.first * dimensionGridCell)
-                        )
+                                            twentyFortyEightGameViewModel.resetTileMergeFlag(row, col)
+                                        }
+                                    }
 
-                        val rectSize = Size(dimensionGridCell, dimensionGridCell)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(animatedSize.value.dp)
+                                            .background(
+                                                color = TileFunctions.getBackgroundColor(tile.value),
+                                                shape = RoundedCornerShape(6.dp)
+                                            )
+                                            .then(
+                                                if (tile.isNewTile) {
+                                                    Modifier.border(
+                                                        width = 2.dp,
+                                                        color = Color.Magenta,
+                                                        shape = RoundedCornerShape(6.dp)
+                                                    )
+                                                } else {
+                                                    Modifier
+                                                }
+                                            )
+                                        ,
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (tile.value != 0) {
+                                            val numDigits = tile.value.toString().length
+                                            val fontSize = when (numDigits) {
+                                                1 -> (dimensionGridCell / 4).sp
+                                                2 -> (dimensionGridCell / 4.5).sp
+                                                3 -> (dimensionGridCell / 5).sp
+                                                else -> (dimensionGridCell / 6).sp
+                                            }
 
-
-                        drawRoundRect(
-                            color = TileFunctions.getBackgroundColor(tile.value),
-                            size = rectSize,
-                            topLeft = topLeftOfRect,
-                            cornerRadius = CornerRadius(8.dp.toPx())
-                        )
-
-                        if (tile.hadRecentMerge) {
-                            drawRoundRect(
-                                color = Color.Magenta,
-                                size = rectSize,
-                                topLeft = topLeftOfRect,
-                                cornerRadius = CornerRadius(8.dp.toPx()),
-                                style = Stroke(width = 4.dp.toPx())
-                            )
-                        }
-
-                        if (tile.value != 0) {
-                            val numDigits = tile.value.toString().length
-                            val fontSize = when (numDigits) {
-                                1 -> (dimensionGridCell/4).sp
-                                2 -> (dimensionGridCell/4.5).sp
-                                3 -> (dimensionGridCell/5).sp
-                                else -> (dimensionGridCell/6).sp
+                                            Text(
+                                                text = tile.value.toString(),
+                                                color = Color.Black,
+                                                fontSize = fontSize,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
+                                    }
+                                }
                             }
-
-                            drawText(
-                                textMeasurer = textMeasurer,
-                                text = tile.value.toString(),
-                                style = TextStyle(
-                                    fontSize = fontSize,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.Center
-                                ),
-                                topLeft = topLeftOfRect
-                            )
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
                 }

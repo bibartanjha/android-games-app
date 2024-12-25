@@ -80,8 +80,6 @@ object GridFunctions {
             val newRow = MutableList(DIM_SIZE) { GridTile() }
             var currIndexInNewRow = 0
             for (col in row.indices) {
-                newRow[col].position = row[col].position
-
                 val tileValue = row[col].value
                 if (tileValue != 0) {
                     newRow[currIndexInNewRow].value = tileValue
@@ -110,52 +108,15 @@ object GridFunctions {
             val newRow2 = MutableList(DIM_SIZE) { GridTile() }
             var currIndexInNewRow2 = 0
             for (col in newRow.indices) {
-                newRow2[col].hadRecentMerge = newRow[col].hadRecentMerge
-                newRow2[col].position = newRow[col].position
-
                 val tileValue = newRow[col].value
                 if (tileValue != 0) {
                     newRow2[currIndexInNewRow2].value = tileValue
+                    newRow2[currIndexInNewRow2].hadRecentMerge = newRow[col].hadRecentMerge
                     currIndexInNewRow2 += 1
                 }
             }
 
             newRow2
         }
-    }
-
-    fun containsAdjacentTilesWithEqualValue(
-        grid: List<MutableList<GridTile>>
-    ): Boolean {
-        for (row in grid.indices) {
-            for (col in grid[row].indices) {
-                if ((row + 1) < grid.size) {
-                    if (grid[row][col] == grid[row + 1][col]) {
-                        return true
-                    }
-                }
-                if ((col + 1) < grid[row].size) {
-                    if (grid[row][col] == grid[row][col + 1]) {
-                        return true
-                    }
-                }
-            }
-        }
-        return false
-    }
-
-    fun getAllTilesWithValue(
-        grid: List<MutableList<GridTile>>,
-        valueToSearchFor: Int
-    ): MutableList<Pair<Int, Int>> {
-        val indicesWithValue = mutableListOf<Pair<Int, Int>>()
-        for (row in grid.indices) {
-            for (col in grid[row].indices) {
-                if (grid[row][col].value == valueToSearchFor) {
-                    indicesWithValue.add(Pair(row, col))
-                }
-            }
-        }
-        return indicesWithValue
     }
 }
