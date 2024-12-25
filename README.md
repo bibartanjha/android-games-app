@@ -2,20 +2,9 @@
 
 This app is written in Jetpack compose. Still in-progress
 
-- Game 1: Wordle
-- Game 2: Snake
-- Game 3: 2048
-- ...
-
-
-### Note to self
-Next steps:
-- [ ] Stopping game when user guessed correctly
-- [ ] Stopping game when no turns left
-- [ ] Testing on actual device
-- [ ] API call
-- [ ] Button to start new round
-- [ ] Optional: If you go back to Home Screen, and click back on wordle, it should not resume a new game
-- [ ] Top Bar for navigating back to Home Screen
-- [ ] Create temp “In Development” pages for other games
-
+- Game 1: Wordle - DONE!
+- Game 2: Snake - DONE!
+- Game 3: 2048 - DONE
+- Game 4: Space Invaders
+- Game 5: Arkanoid
+- Game 6: Frogger
