@@ -1,6 +1,5 @@
 package com.example.android_games_app.games.twentyfortyeight
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.DIM_SIZE
 import com.example.android_games_app.games.twentyfortyeight.utils.GridFunctions
@@ -36,9 +35,13 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         val tilesWith2048 = mutableListOf<Pair<Int, Int>>()
         val tilesWithZero = mutableListOf<Pair<Int, Int>>()
         var containsAdjacentTilesWithEqualValue = false
+        var gridIsSame = true
 
         for (row in updatedGrid.indices) {
             for (col in updatedGrid[row].indices) {
+                if (updatedGrid[row][col] != gameStateValue.gameGrid[row][col]) {
+                    gridIsSame = false
+                }
                 updatedGrid[row][col].isNewTile = false
 
                 if (updatedGrid[row][col].value == 2048) {
@@ -67,12 +70,36 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         } else {
             if (tilesWithZero.isEmpty() && (!containsAdjacentTilesWithEqualValue)) {
                 updatedGameStatus = GameProgressStatus.LOST
-            } else {
+            } else if (!gridIsSame) {
                 val randomTile = tilesWithZero.random()
-                updatedGrid[randomTile.first][randomTile.second] = GridTile(
+                val row = randomTile.first
+                val col = randomTile.second
+                updatedGrid[row][col] = GridTile(
                     value = 2,
                     isNewTile = true
                 )
+
+                // Note to self: Checking if after adding this new tile, is the game over
+                if (tilesWithZero.size == 1) { // this means that the new tile took up the last spot
+                    val adjacentValues: MutableList<Int> = mutableListOf()
+
+                    if (row > 0) {
+                        adjacentValues.add(updatedGrid[row - 1][col].value)
+                    }
+                    if (row < (updatedGrid.size - 1)) {
+                        adjacentValues.add(updatedGrid[row + 1][col].value)
+                    }
+                    if (col > 0) {
+                        adjacentValues.add(updatedGrid[row][col - 1].value)
+                    }
+                    if (col < (updatedGrid[row].size - 1)) {
+                        adjacentValues.add(updatedGrid[row][col + 1].value)
+                    }
+
+                    if (!adjacentValues.contains(2)) {
+                        updatedGameStatus = GameProgressStatus.LOST
+                    }
+                }
             }
         }
 
