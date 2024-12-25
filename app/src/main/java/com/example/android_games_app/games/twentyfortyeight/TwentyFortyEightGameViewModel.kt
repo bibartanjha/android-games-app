@@ -91,7 +91,7 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
         gameState.value = gameState.value.copy(
             gameGrid = newGrid,
-            gameProgressStatus = GameProgressStatus.NOT_STARTED
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
 

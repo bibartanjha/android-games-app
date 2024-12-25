@@ -1,13 +1,10 @@
 package com.example.android_games_app.games.twentyfortyeight
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,9 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,12 +36,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.SCREEN_BG_COLOR
-import com.example.android_games_app.games.twentyfortyeight.utils.GridTile
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.games.twentyfortyeight.utils.TileFunctions
 import com.example.android_games_app.navigation.Routes
+import com.example.android_games_app.utils.GamePauseOrCompleteScreen
+import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.TopBarWithBackIcon
-import kotlinx.coroutines.delay
 import kotlin.math.abs
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -214,6 +209,28 @@ fun TwentyFortyEightGameScreen(
                     }
                 }
             }
+            if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
+                GamePauseOrCompleteScreen(
+                    text = if (gameState.gameProgressStatus == GameProgressStatus.WON) {
+                        "Congrats!"
+                    } else {
+                        "No possible moves left"
+                    },
+                    cardBGColor = Color.LightGray,
+                    textColor = Color.Black,
+                    buttonTexts = listOf("Start New Round", "Return to Main Menu"),
+                    onButtonSelection = {
+                        if (it == "Start New Round") {
+                            twentyFortyEightGameViewModel.startNewGame()
+                        } else if (it == "Return to Main Menu") {
+                            onNavigateToOtherScreen(Routes.HOME_SCREEN)
+                        }
+                    }
+                )
+            }
+
+
+
         }
     }
 }
