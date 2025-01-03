@@ -3,7 +3,6 @@ package com.example.android_games_app.games.snake
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,13 +27,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.android_games_app.games.snake.utils.SnakeDirection
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_COLS
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_ROWS
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.SNAKE_GAME_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.BaseCard
+import com.example.android_games_app.utils.DirectionButtons
 import com.example.android_games_app.utils.GamePauseOrCompleteScreen
 import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.TopBarWithBackIcon
@@ -162,57 +160,21 @@ fun SnakeGameScreen(
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val arrowCardWidth = (screenWidth/7)
-                        val arrowCardTextSize = (arrowCardWidth/2)
-                        BaseCard(
-                            textValue = "↑",
-                            cardWidth = arrowCardWidth.dp,
-                            cardHeight = arrowCardWidth.dp,
-                            textSize = arrowCardTextSize.sp,
-                            yOffset = -(arrowCardWidth).dp,
-                            onBaseCardClicked = {
-                                snakeGameViewModel.updateSnakeDirection(SnakeDirection.UP)
-                            }
-                        )
-
-                        BaseCard(
-                            textValue = "↓",
-                            cardWidth = arrowCardWidth.dp,
-                            cardHeight = arrowCardWidth.dp,
-                            textSize = arrowCardTextSize.sp,
-                            yOffset = (arrowCardWidth).dp,
-                            onBaseCardClicked = {
-                                snakeGameViewModel.updateSnakeDirection(SnakeDirection.DOWN)
-                            }
-                        )
-
-                        BaseCard(
-                            textValue = "←",
-                            cardWidth = arrowCardWidth.dp,
-                            cardHeight = arrowCardWidth.dp,
-                            textSize = arrowCardTextSize.sp,
-                            xOffset = (-arrowCardWidth).dp,
-                            onBaseCardClicked = {
-                                snakeGameViewModel.updateSnakeDirection(SnakeDirection.LEFT)
-                            }
-                        )
-
-                        BaseCard(
-                            textValue = "→",
-                            cardWidth = arrowCardWidth.dp,
-                            cardHeight = arrowCardWidth.dp,
-                            textSize = arrowCardTextSize.sp,
-                            xOffset = (arrowCardWidth).dp,
-                            onBaseCardClicked = {
-                                snakeGameViewModel.updateSnakeDirection(SnakeDirection.RIGHT)
-                            }
-                        )
+                DirectionButtons(
+                    arrowCardWidth = (screenWidth/7),
+                    onUpClicked = {
+                        snakeGameViewModel.updateSnakeDirection(SnakeDirection.UP)
+                    },
+                    onDownClicked = {
+                        snakeGameViewModel.updateSnakeDirection(SnakeDirection.DOWN)
+                    },
+                    onLeftClicked = {
+                        snakeGameViewModel.updateSnakeDirection(SnakeDirection.LEFT)
+                    },
+                    onRightClicked = {
+                        snakeGameViewModel.updateSnakeDirection(SnakeDirection.RIGHT)
                     }
+                )
             }
             if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
                 GamePauseOrCompleteScreen(

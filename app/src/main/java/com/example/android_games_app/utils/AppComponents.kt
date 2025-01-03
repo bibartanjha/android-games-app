@@ -271,4 +271,64 @@ fun TopBarWithBackIconPreview() {
     )
 }
 
+@Composable
+fun DirectionButtons(
+    arrowCardWidth: Int,
+    onUpClicked: (() -> Unit)? = null,
+    onDownClicked: (() -> Unit)? = null,
+    onLeftClicked: (() -> Unit)? = null,
+    onRightClicked: (() -> Unit)? = null
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        val arrowCardTextSize = (arrowCardWidth/2)
+        BaseCard(
+            textValue = "↑",
+            cardWidth = arrowCardWidth.dp,
+            cardHeight = arrowCardWidth.dp,
+            textSize = arrowCardTextSize.sp,
+            yOffset = -(arrowCardWidth).dp,
+            onBaseCardClicked = onUpClicked
+        )
+
+        BaseCard(
+            textValue = "↓",
+            cardWidth = arrowCardWidth.dp,
+            cardHeight = arrowCardWidth.dp,
+            textSize = arrowCardTextSize.sp,
+            yOffset = (arrowCardWidth).dp,
+            onBaseCardClicked = onDownClicked
+        )
+
+        BaseCard(
+            textValue = "←",
+            cardWidth = arrowCardWidth.dp,
+            cardHeight = arrowCardWidth.dp,
+            textSize = arrowCardTextSize.sp,
+            xOffset = (-arrowCardWidth).dp,
+            onBaseCardClicked = onLeftClicked
+        )
+
+        BaseCard(
+            textValue = "→",
+            cardWidth = arrowCardWidth.dp,
+            cardHeight = arrowCardWidth.dp,
+            textSize = arrowCardTextSize.sp,
+            xOffset = (arrowCardWidth).dp,
+            onBaseCardClicked = onRightClicked
+        )
+    }
+}
+
+@Preview
+@Composable
+fun DirectionButtonsPreview() {
+    DirectionButtons(
+        arrowCardWidth = 20
+    )
+}
+
 
