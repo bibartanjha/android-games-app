@@ -39,7 +39,7 @@ class SnakeGameViewModel: ViewModel() {
     }
 
     private fun startGameLoop() {
-        // If the game loop is already running, don't start it again.
+        // Note to self: If the game loop is already running, don't start it again.
         if (job != null && job?.isActive == true) return
 
         job = viewModelScope.launch {
