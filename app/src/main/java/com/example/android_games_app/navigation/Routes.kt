@@ -8,4 +8,6 @@ object Routes {
     const val SNAKE_SCREEN = "Snake"
 
     const val TWENTYFORTYEIGHT_SCREEN = "2048"
+
+    const val FROGGER_SCREEN = "FROGGER"
 }

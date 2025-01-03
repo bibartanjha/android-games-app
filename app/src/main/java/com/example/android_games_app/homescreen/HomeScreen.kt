@@ -53,6 +53,7 @@ fun HomeScreen(
                 painterResource(R.drawable.wordle) to Routes.WORDLE_SCREEN,
                 painterResource(R.drawable.snake) to Routes.SNAKE_SCREEN,
                 painterResource(R.drawable.twentyfortyeight) to Routes.TWENTYFORTYEIGHT_SCREEN,
+                painterResource(R.drawable.frogger_game_logo) to Routes.FROGGER_SCREEN,
             )
 
             for (option in gameOptions) {

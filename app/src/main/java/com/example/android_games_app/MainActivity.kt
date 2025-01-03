@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_games_app.games.frogger.FroggerViewModel
 import com.example.android_games_app.games.snake.SnakeGameViewModel
 import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGameViewModel
 import com.example.android_games_app.navigation.GamesNavigationGraph
@@ -39,7 +40,13 @@ class MainActivity : ComponentActivity() {
         val wordleGameViewModel: WordleGameViewModel = viewModel()
         val snakeGameViewModel: SnakeGameViewModel = viewModel()
         val twentyFortyEightGameViewModel: TwentyFortyEightGameViewModel = viewModel()
+        val froggerViewModel: FroggerViewModel = viewModel()
 
-        GamesNavigationGraph(wordleGameViewModel, snakeGameViewModel, twentyFortyEightGameViewModel)
+        GamesNavigationGraph(
+            wordleGameViewModel,
+            snakeGameViewModel,
+            twentyFortyEightGameViewModel,
+            froggerViewModel
+        )
     }
 }
