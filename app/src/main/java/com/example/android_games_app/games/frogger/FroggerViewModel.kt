@@ -93,11 +93,11 @@ class FroggerViewModel: ViewModel() {
                 if (collisionHappened) {
                     froggerGameState.value = froggerGameState.value.copy(
                         objectXOffsets = updatedObjectOffsets,
-//                        frogXOffset = 0f,
-//                        frogCurrentRowIndex = gameRows.size - 1,
-//                        frogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1),
-//                        frogDirection = Frog.FrogDirection.UP
-                        gameProgressStatus = GameProgressStatus.PAUSED
+                        frogXOffset = 0f,
+                        frogCurrentRowIndex = gameRows.size - 1,
+                        frogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1),
+                        frogDirection = Frog.FrogDirection.UP,
+//                        gameProgressStatus = GameProgressStatus.PAUSED
                     )
                     collisionHappened = false
                 } else {
