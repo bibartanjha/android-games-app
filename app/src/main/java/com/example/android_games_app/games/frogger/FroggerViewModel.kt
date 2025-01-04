@@ -1,15 +1,18 @@
 package com.example.android_games_app.games.frogger
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.defaultFrogXOffset
+import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneHeight
+import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForRowObject
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForRowObject
+import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
-import com.example.android_games_app.games.frogger.FroggerFixedValues.yValueForLastRow
+import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
+import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarHeight
 import com.example.android_games_app.games.frogger.utils.Frog
 import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.Job
@@ -97,8 +100,6 @@ class FroggerViewModel: ViewModel() {
                 var updatedFrogStatus = froggerGameState.value.frogStatus
                 var updatedAnimCounter = froggerGameState.value.frogDiedOnRoadAnimationCounter
                 var updatedFrogXOffset = froggerGameState.value.frogXOffset
-                var updatedFrogYOffset = froggerGameState.value.frogYOffset
-
                 var updatedFrogCurrentRowIndex = froggerGameState.value.frogCurrentRowIndex
 
                 if (froggerGameState.value.frogDiedOnRoad) {
@@ -114,7 +115,6 @@ class FroggerViewModel: ViewModel() {
                         updatedFrogStatus = Frog.FrogStatus.ALIVE_POINTING_UP
                         updatedFrogXOffset = defaultFrogXOffset
                         updatedFrogCurrentRowIndex = gameRows.size - 1
-                        updatedFrogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1)
                         updatedFrogDiedOnRoadValue = false
                         updatedAnimCounter = -1
                     }
@@ -130,8 +130,7 @@ class FroggerViewModel: ViewModel() {
                     frogDiedOnRoad = updatedFrogDiedOnRoadValue,
                     frogDiedOnRoadAnimationCounter = updatedAnimCounter,
                     frogXOffset = updatedFrogXOffset,
-                    frogYOffset = updatedFrogYOffset,
-                    frogCurrentRowIndex = updatedFrogCurrentRowIndex
+                    frogCurrentRowIndex = updatedFrogCurrentRowIndex,
                 )
             }
         }
@@ -147,16 +146,23 @@ class FroggerViewModel: ViewModel() {
         )
     }
 
+    fun resumeGame() {
+        froggerGameState.value = froggerGameState.value.copy(
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
+        )
+    }
+
     fun onFrogHorizontalMovement(goingLeft: Boolean, screenWidth: Float) {
         if (froggerGameState.value.frogDiedOnRoad) {
             return
         }
-        val newX = convertFloatToTwoDecimalPlaces(
-            if (goingLeft) {
+        val newX = reduceFloatDigits(
+            floatToReduce = if (goingLeft) {
                 froggerGameState.value.frogXOffset - columnWidth
             } else {
                 froggerGameState.value.frogXOffset + columnWidth
-            }
+            },
+            numDigitsAfterDecimal = 2
         )
 
         if (newX >= 0 && newX < screenWidth) {
@@ -182,10 +188,7 @@ class FroggerViewModel: ViewModel() {
         }
 
         if (newRow >= 0 && newRow < gameRows.size) {
-            val newFrogYIndex = getYOffsetForRowBasedOnIndex(newRow)
-
             froggerGameState.value = froggerGameState.value.copy(
-                frogYOffset = newFrogYIndex,
                 frogCurrentRowIndex = newRow,
                 frogStatus = if (goingUp) {
                     Frog.FrogStatus.ALIVE_POINTING_UP
@@ -212,21 +215,28 @@ class FroggerViewModel: ViewModel() {
         screenWidth: Float,
         screenHeight: Float
     ) {
+
+        // Horizontal measurements/bounds
         leftMostBoundForRowObject = -(screenWidth * 0.5f)
         rightMostBoundForRowObject = screenWidth * 1.5f
-        yValueForLastRow = convertFloatToTwoDecimalPlaces(screenHeight * 0.61f)
-        columnWidth = convertFloatToTwoDecimalPlaces(screenWidth * .1f)
-        rowHeight = convertFloatToTwoDecimalPlaces(screenHeight * .05f)
+        columnWidth = reduceFloatDigits(
+            floatToReduce = screenWidth * .1f,
+            numDigitsAfterDecimal = 2
+        )
 
-        var yOffsetValue = yValueForLastRow
+        // Vertical measurements/bounds
+        endZoneHeight = screenHeight * endZoneAmountOfScreen
+        rowHeight = screenHeight * rowAmountOfScreen
+        topBarHeight = screenHeight * topBarAmountOfScreen
 
-        for (rowIndex in gameRows.size - 1 downTo 0) {
-            gameRows[rowIndex].yOffsetValueOnScreen = yOffsetValue
-            yOffsetValue -= rowHeight
+        var yOffsetValue = topBarHeight + endZoneHeight
+        for (rowIndex in gameRows.indices) {
+            gameRows[rowIndex].yOffsetValueForRow = yOffsetValue
+            yOffsetValue += rowHeight
         }
 
+        // X-coordinate values road and river objects
         val newOffsets: List<List<Float>> = listOf(
-            emptyList(), // end zone
             emptyList(), // river row 1
             emptyList(), // river row 2
             emptyList(), // river row 3
@@ -264,17 +274,12 @@ class FroggerViewModel: ViewModel() {
 
         froggerGameState.value = froggerGameState.value.copy(
             objectXOffsets = newOffsets,
-            frogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1)
         )
     }
 }
 
-fun convertFloatToTwoDecimalPlaces(number: Float): Float =
-    String.format(Locale.US, "%.2f", number).toFloat()
-
-fun getYOffsetForRowBasedOnIndex(rowIndex: Int): Float {
-    return yValueForLastRow - (((gameRows.size - 1) - rowIndex) * rowHeight)
-}
+fun reduceFloatDigits(floatToReduce: Float, numDigitsAfterDecimal: Int): Float =
+    String.format(Locale.US, "%.${numDigitsAfterDecimal}f", floatToReduce).toFloat()
 
 fun collisionHappened(
     object1StartX: Float,
@@ -288,7 +293,6 @@ fun collisionHappened(
     /**
      * Note to self: adding a .1 margin
      */
-
     val object1StartXWithMargin = object1StartX + (object1Width * .1)
     val object1EndXWithMargin = object1EndX - (object1Width * .1)
 

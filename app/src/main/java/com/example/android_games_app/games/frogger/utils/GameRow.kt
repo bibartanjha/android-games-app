@@ -7,5 +7,5 @@ data class GameRow(
     val objectsAreGoingLeft: Boolean = false,
     val objectTypeInLane: RowObjectType = RowObjectType.NONE,
     val containsWiderObject: Boolean = false,
-    var yOffsetValueOnScreen: Float = 0f
+    var yOffsetValueForRow: Float = 0f
 )

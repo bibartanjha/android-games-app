@@ -8,11 +8,12 @@ import com.example.android_games_app.games.frogger.utils.RowObject.RowObjectType
 object FroggerFixedValues {
 
     val FROGGER_SCREEN_BG_COLOR: Color = Color.Black
+    val defaultFrogXOffset: Float = 0f
+    val topBarAmountOfScreen: Float = 0.07f
+    val endZoneAmountOfScreen: Float = 0.07f
+    val rowAmountOfScreen: Float = 0.04f
 
     val gameRows: List<GameRow> = listOf(
-        GameRow(
-            rowType = GameRowType.END_ZONE
-        ),
         GameRow(
             rowType = GameRowType.RIVER
         ),
@@ -68,8 +69,8 @@ object FroggerFixedValues {
      */
     var leftMostBoundForRowObject = Float.NEGATIVE_INFINITY
     var rightMostBoundForRowObject = Float.POSITIVE_INFINITY
+    var topBarHeight: Float = 100f
+    var endZoneHeight: Float = 100f
     var rowHeight: Float = 100f
     var columnWidth: Float = 100f
-    var yValueForLastRow: Float = 100f
-    var defaultFrogXOffset: Float = 0f
 }
