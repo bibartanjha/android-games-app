@@ -40,7 +40,7 @@ object FroggerFixedValues {
         GameRow(
             rowType = GameRowType.ROAD,
             objectsAreGoingLeft = false,
-            objectTypeInLane = RowObjectType.RACE_CAR
+            objectTypeInLane = RowObjectType.GRAY_RACE_CAR
         ),
         GameRow(
             rowType = GameRowType.ROAD,
@@ -55,7 +55,7 @@ object FroggerFixedValues {
         GameRow(
             rowType = GameRowType.ROAD,
             objectsAreGoingLeft = true,
-            objectTypeInLane = RowObjectType.YELLOW_CAR
+            objectTypeInLane = RowObjectType.YELLOW_RACE_CAR
         ),
         GameRow(
             rowType = GameRowType.SAFE_ZONE
