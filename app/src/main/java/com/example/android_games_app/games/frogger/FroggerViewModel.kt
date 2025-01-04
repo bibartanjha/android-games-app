@@ -46,6 +46,7 @@ class FroggerViewModel: ViewModel() {
         if (job != null && job?.isActive == true) return
 
         job = viewModelScope.launch {
+            var collisionHappened = false
             while (froggerGameState.value.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
                 delay(25)
 
@@ -53,33 +54,57 @@ class FroggerViewModel: ViewModel() {
                 for (laneNumber in 0 until updatedObjectOffsets.size) {
                     val currentLane = updatedObjectOffsets[laneNumber].toMutableList()
                     
-                    if (currentLane.isNotEmpty()) {
-                        for (j in 0 until currentLane.size) {
-                            val objectXOffset = currentLane[j]
-                            currentLane[j] = if (gameRows[laneNumber].objectsAreGoingLeft) {
-                                val newVal = objectXOffset - roadSpeed
-                                if (newVal <= leftMostBoundForRowObject) {
-                                    rightMostBoundForRowObject - 1
-                                } else {
-                                    newVal
-                                }
-                            }
-                            else {
-                                val newVal = objectXOffset + roadSpeed
-                                if (newVal >= rightMostBoundForRowObject) {
-                                    leftMostBoundForRowObject + 1
-                                } else {
-                                    newVal
-                                }
+                    for (objectNumber in 0 until currentLane.size) {
+                        val objectXOffset = currentLane[objectNumber]
+                        if (laneNumber == froggerGameState.value.frogCurrentRowIndex) {
+                            if (collisionHappened(
+                                    object1StartX = froggerGameState.value.frogXOffset,
+                                    object1Width = columnWidth,
+                                    object2StartX = objectXOffset,
+                                    object2Width = if (gameRows[laneNumber].containsWiderObject) {
+                                        columnWidth * 2
+                                    } else {
+                                        columnWidth
+                                    }
+                                )) {
+                                collisionHappened = true
                             }
                         }
-                        updatedObjectOffsets[laneNumber] = currentLane
+                        currentLane[objectNumber] = if (gameRows[laneNumber].objectsAreGoingLeft) {
+                            val newVal = objectXOffset - roadSpeed
+                            if (newVal <= leftMostBoundForRowObject) {
+                                rightMostBoundForRowObject - 1
+                            } else {
+                                newVal
+                            }
+                        }
+                        else {
+                            val newVal = objectXOffset + roadSpeed
+                            if (newVal >= rightMostBoundForRowObject) {
+                                leftMostBoundForRowObject + 1
+                            } else {
+                                newVal
+                            }
+                        }
                     }
+                    updatedObjectOffsets[laneNumber] = currentLane
                 }
 
-                froggerGameState.value = froggerGameState.value.copy(
-                    objectXOffsets = updatedObjectOffsets
-                )
+                if (collisionHappened) {
+                    froggerGameState.value = froggerGameState.value.copy(
+                        objectXOffsets = updatedObjectOffsets,
+//                        frogXOffset = 0f,
+//                        frogCurrentRowIndex = gameRows.size - 1,
+//                        frogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1),
+//                        frogDirection = Frog.FrogDirection.UP
+                        gameProgressStatus = GameProgressStatus.PAUSED
+                    )
+                    collisionHappened = false
+                } else {
+                    froggerGameState.value = froggerGameState.value.copy(
+                        objectXOffsets = updatedObjectOffsets
+                    )
+                }
             }
         }
     }
@@ -141,12 +166,10 @@ class FroggerViewModel: ViewModel() {
     fun startNewGame() {
         stopGameLoop()
 
-        val baseRow = gameRows.size - 1
-
         froggerGameState.value = froggerGameState.value.copy(
             gameProgressStatus = GameProgressStatus.IN_PROGRESS,
             frogXOffset = 0f,
-            frogCurrentRowIndex = baseRow,
+            frogCurrentRowIndex = gameRows.size - 1,
             frogDirection = Frog.FrogDirection.UP
         )
     }
@@ -219,3 +242,24 @@ fun convertFloatToTwoDecimalPlaces(number: Float): Float =
 fun getYOffsetForRowBasedOnIndex(rowIndex: Int): Float {
     return yValueForLastRow - (((gameRows.size - 1) - rowIndex) * rowHeight)
 }
+
+fun collisionHappened(
+    object1StartX: Float,
+    object1Width: Float,
+    object2StartX: Float,
+    object2Width: Float
+): Boolean {
+    val object1EndX = object1StartX + object1Width
+    val object2EndX = object2StartX + object2Width
+
+    /**
+     * Note to self: adding a .1 margin
+     */
+
+    val object1StartXWithMargin = object1StartX + (object1Width * .1)
+    val object1EndXWithMargin = object1EndX - (object1Width * .1)
+
+    return !((object1StartXWithMargin > object2EndX) || (object1EndXWithMargin < object2StartX))
+}
+
+

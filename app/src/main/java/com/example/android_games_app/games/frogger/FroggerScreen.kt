@@ -1,7 +1,6 @@
 package com.example.android_games_app.games.frogger
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,9 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +34,6 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.FROGGER_SC
 import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
-import com.example.android_games_app.games.frogger.utils.GameRowType
 import com.example.android_games_app.games.frogger.utils.RowObject
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.DirectionButtons
@@ -98,39 +94,34 @@ fun FroggerScreen(
                             contentScale = ContentScale.FillBounds
                         )
                 ) {
-                    if (gameState.objectXOffsets.isNotEmpty()) {
+                    if (screenWidthDependentValuesAreSet) {
                         for (rowNumber in 0 until gameState.objectXOffsets.size) {
                             val rowInformation = gameRows[rowNumber]
-                            if (rowInformation.rowType == GameRowType.ROAD) {
                                 for (obstacleXOffset in gameState.objectXOffsets[rowNumber]) {
-                                    val obstacleImageResourceValue = RowObject.objectToImageMap[rowInformation.objectTypeInLane]
-                                    val obstacleImagePainter = if (obstacleImageResourceValue == null) {
-                                        painterResource(id = RowObject.getDefaultObjectImage())
-                                    } else {
-                                        painterResource(id = obstacleImageResourceValue)
-                                    }
-
-//                                    val yOffset = maxYOffset - ((gameState.objectXOffsets.size - rowNumber) * rowHeight)
-
-                                    val obstacleWidth = if (rowInformation.containsWiderObject) {
-                                        columnWidth * 2
-                                    } else {
-                                        columnWidth
-                                    }
-                                    Image(
-                                        modifier = Modifier
-                                            .width(obstacleWidth.dp)
-                                            .height(rowHeight.dp)
-                                            .padding(start = 0.dp)
-                                            .offset(
-                                                x = obstacleXOffset.dp,
-                                                y = rowInformation.yOffsetValueOnScreen.dp
-                                            )
-                                        ,
-                                        painter = obstacleImagePainter,
-                                        contentDescription = null,
-                                    )
+                                val obstacleImageResourceValue = RowObject.objectToImageMap[rowInformation.objectTypeInLane]
+                                val obstacleImagePainter = if (obstacleImageResourceValue == null) {
+                                    painterResource(id = RowObject.getDefaultObjectImage())
+                                } else {
+                                    painterResource(id = obstacleImageResourceValue)
                                 }
+
+                                val obstacleWidth = if (rowInformation.containsWiderObject) {
+                                    columnWidth * 2
+                                } else {
+                                    columnWidth
+                                }
+                                Image(
+                                    modifier = Modifier
+                                        .width(obstacleWidth.dp)
+                                        .height(rowHeight.dp)
+                                        .padding(start = 0.dp)
+                                        .offset(
+                                            x = obstacleXOffset.dp,
+                                            y = rowInformation.yOffsetValueOnScreen.dp
+                                        ),
+                                    painter = obstacleImagePainter,
+                                    contentDescription = null,
+                                )
                             }
                         }
                     }
@@ -179,6 +170,13 @@ fun FroggerScreen(
                         )
                     }
                 )
+
+//                Box(
+//                    modifier = Modifier
+//                        .width(columnWidth.dp)
+//                        .height(rowHeight.dp)
+//                        .background(color = Color(0xFFF65E3B))
+//                )
             }
         }
     }
