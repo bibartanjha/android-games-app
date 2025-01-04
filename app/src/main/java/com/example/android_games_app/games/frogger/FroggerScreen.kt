@@ -126,7 +126,7 @@ fun FroggerScreen(
                         }
                     }
 
-                    val frogImageResourceValue = Frog.directionToImageMap[gameState.frogDirection]
+                    val frogImageResourceValue = Frog.statusToImageMap[gameState.frogStatus]
                     val frogImagePainter = if (frogImageResourceValue == null) {
                         painterResource(id = Frog.getDefaultDirectionImage())
                     } else {

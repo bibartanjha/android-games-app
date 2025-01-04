@@ -71,4 +71,5 @@ object FroggerFixedValues {
     var rowHeight: Float = 100f
     var columnWidth: Float = 100f
     var yValueForLastRow: Float = 100f
+    var defaultFrogXOffset: Float = 0f
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
+import com.example.android_games_app.games.frogger.FroggerFixedValues.defaultFrogXOffset
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForRowObject
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForRowObject
@@ -46,7 +47,7 @@ class FroggerViewModel: ViewModel() {
         if (job != null && job?.isActive == true) return
 
         job = viewModelScope.launch {
-            var collisionHappened = false
+            var collisionHappenedRightNow = false
             while (froggerGameState.value.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
                 delay(25)
 
@@ -56,8 +57,9 @@ class FroggerViewModel: ViewModel() {
                     
                     for (objectNumber in 0 until currentLane.size) {
                         val objectXOffset = currentLane[objectNumber]
-                        if (laneNumber == froggerGameState.value.frogCurrentRowIndex) {
-                            if (collisionHappened(
+                        if (laneNumber == froggerGameState.value.frogCurrentRowIndex && !(froggerGameState.value.frogDiedOnRoad)) {
+                            if (
+                                collisionHappened(
                                     object1StartX = froggerGameState.value.frogXOffset,
                                     object1Width = columnWidth,
                                     object2StartX = objectXOffset,
@@ -66,8 +68,9 @@ class FroggerViewModel: ViewModel() {
                                     } else {
                                         columnWidth
                                     }
-                                )) {
-                                collisionHappened = true
+                                )
+                            ) {
+                                collisionHappenedRightNow = true
                             }
                         }
                         currentLane[objectNumber] = if (gameRows[laneNumber].objectsAreGoingLeft) {
@@ -90,21 +93,46 @@ class FroggerViewModel: ViewModel() {
                     updatedObjectOffsets[laneNumber] = currentLane
                 }
 
-                if (collisionHappened) {
-                    froggerGameState.value = froggerGameState.value.copy(
-                        objectXOffsets = updatedObjectOffsets,
-                        frogXOffset = 0f,
-                        frogCurrentRowIndex = gameRows.size - 1,
-                        frogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1),
-                        frogDirection = Frog.FrogDirection.UP,
-//                        gameProgressStatus = GameProgressStatus.PAUSED
-                    )
-                    collisionHappened = false
-                } else {
-                    froggerGameState.value = froggerGameState.value.copy(
-                        objectXOffsets = updatedObjectOffsets
-                    )
+                var updatedFrogDiedOnRoadValue = froggerGameState.value.frogDiedOnRoad
+                var updatedFrogStatus = froggerGameState.value.frogStatus
+                var updatedAnimCounter = froggerGameState.value.frogDiedOnRoadAnimationCounter
+                var updatedFrogXOffset = froggerGameState.value.frogXOffset
+                var updatedFrogYOffset = froggerGameState.value.frogYOffset
+
+                var updatedFrogCurrentRowIndex = froggerGameState.value.frogCurrentRowIndex
+
+                if (froggerGameState.value.frogDiedOnRoad) {
+                    if (updatedAnimCounter == 0) {
+                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_1
+                    } else if (updatedAnimCounter == 7) {
+                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_2
+                    } else if (updatedAnimCounter == 14) {
+                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_3
+                    } else if (updatedAnimCounter == 21) {
+                        updatedFrogStatus = Frog.FrogStatus.DEATH_PHASE_FINAL
+                    } else if (updatedAnimCounter == 28) {
+                        updatedFrogStatus = Frog.FrogStatus.ALIVE_POINTING_UP
+                        updatedFrogXOffset = defaultFrogXOffset
+                        updatedFrogCurrentRowIndex = gameRows.size - 1
+                        updatedFrogYOffset = getYOffsetForRowBasedOnIndex(gameRows.size - 1)
+                        updatedFrogDiedOnRoadValue = false
+                        updatedAnimCounter = -1
+                    }
+                    updatedAnimCounter += 1
+                } else if (collisionHappenedRightNow) {
+                    updatedFrogDiedOnRoadValue = true
+                    collisionHappenedRightNow = false
                 }
+
+                froggerGameState.value = froggerGameState.value.copy(
+                    objectXOffsets = updatedObjectOffsets,
+                    frogStatus = updatedFrogStatus,
+                    frogDiedOnRoad = updatedFrogDiedOnRoadValue,
+                    frogDiedOnRoadAnimationCounter = updatedAnimCounter,
+                    frogXOffset = updatedFrogXOffset,
+                    frogYOffset = updatedFrogYOffset,
+                    frogCurrentRowIndex = updatedFrogCurrentRowIndex
+                )
             }
         }
     }
@@ -120,6 +148,9 @@ class FroggerViewModel: ViewModel() {
     }
 
     fun onFrogHorizontalMovement(goingLeft: Boolean, screenWidth: Float) {
+        if (froggerGameState.value.frogDiedOnRoad) {
+            return
+        }
         val newX = convertFloatToTwoDecimalPlaces(
             if (goingLeft) {
                 froggerGameState.value.frogXOffset - columnWidth
@@ -131,16 +162,19 @@ class FroggerViewModel: ViewModel() {
         if (newX >= 0 && newX < screenWidth) {
             froggerGameState.value = froggerGameState.value.copy(
                 frogXOffset = newX,
-                frogDirection = if (goingLeft) {
-                    Frog.FrogDirection.LEFT
+                frogStatus = if (goingLeft) {
+                    Frog.FrogStatus.ALIVE_POINTING_LEFT
                 } else {
-                    Frog.FrogDirection.RIGHT
+                    Frog.FrogStatus.ALIVE_POINTING_RIGHT
                 }
             )
         }
     }
 
     fun onFrogVerticalMovement(goingUp: Boolean) {
+        if (froggerGameState.value.frogDiedOnRoad) {
+            return
+        }
         val newRow = if (goingUp) {
             froggerGameState.value.frogCurrentRowIndex - 1
         } else {
@@ -153,10 +187,10 @@ class FroggerViewModel: ViewModel() {
             froggerGameState.value = froggerGameState.value.copy(
                 frogYOffset = newFrogYIndex,
                 frogCurrentRowIndex = newRow,
-                frogDirection = if (goingUp) {
-                    Frog.FrogDirection.UP
+                frogStatus = if (goingUp) {
+                    Frog.FrogStatus.ALIVE_POINTING_UP
                 } else {
-                    Frog.FrogDirection.DOWN
+                    Frog.FrogStatus.ALIVE_POINTING_DOWN
                 }
 
             )
@@ -168,9 +202,9 @@ class FroggerViewModel: ViewModel() {
 
         froggerGameState.value = froggerGameState.value.copy(
             gameProgressStatus = GameProgressStatus.IN_PROGRESS,
-            frogXOffset = 0f,
+            frogXOffset = defaultFrogXOffset,
             frogCurrentRowIndex = gameRows.size - 1,
-            frogDirection = Frog.FrogDirection.UP
+            frogStatus = Frog.FrogStatus.ALIVE_POINTING_UP
         )
     }
 
@@ -186,7 +220,6 @@ class FroggerViewModel: ViewModel() {
 
         var yOffsetValue = yValueForLastRow
 
-        // gameRows[rowIndex].yOffsetValueOnScreen = maxYOffset - ((gameState.objectXOffsets.size - rowNumber) * rowHeight)
         for (rowIndex in gameRows.size - 1 downTo 0) {
             gameRows[rowIndex].yOffsetValueOnScreen = yOffsetValue
             yOffsetValue -= rowHeight
