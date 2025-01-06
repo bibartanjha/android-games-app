@@ -1,13 +1,12 @@
 package com.example.android_games_app.games.frogger
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_games_app.games.frogger.FroggerFixedValues.animCounterReset
-import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.defaultFrogXOffset
-import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneAmountOfScreen
+import com.example.android_games_app.games.frogger.FroggerFixedValues.frogAnimCounterInterval
+import com.example.android_games_app.games.frogger.FroggerFixedValues.frogWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForFrog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForRowObject
@@ -16,11 +15,13 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostB
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
-import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarHeight
 import com.example.android_games_app.games.frogger.utils.Frog
-import com.example.android_games_app.games.frogger.utils.Frog.deathByCarPhases
+import com.example.android_games_app.games.frogger.utils.Frog.deathOnRiverPhases
+import com.example.android_games_app.games.frogger.utils.Frog.deathOnRoadPhases
 import com.example.android_games_app.games.frogger.utils.GameRowType
-import com.example.android_games_app.games.frogger.utils.RowObject
+import com.example.android_games_app.games.frogger.utils.RowObject.currentlyUnderwater
+import com.example.android_games_app.games.frogger.utils.RowObject.getDisplayWidth
+import com.example.android_games_app.games.frogger.utils.RowObject.getMarginForCollision
 import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,12 +38,6 @@ class FroggerViewModel: ViewModel() {
     init {
         observeIsPausedState()
     }
-
-//    private val roadSpeed = 2f
-//    private val riverSpeed = 3f
-
-    private val normalSpeedOffset = 2f
-    private val fasterSpeedOffset = 2.5f
 
     private fun observeIsPausedState() {
         viewModelScope.launch {
@@ -72,29 +67,25 @@ class FroggerViewModel: ViewModel() {
 
                 for (rowIndex in 0 until gameRows.size) {
                     var row = gameRows[rowIndex]
-                    var checkForCollisions = (rowIndex == frogCurrentRowIndex) && (froggerGameState.value.frogAliveStatus == Frog.FrogAliveStatus.ALIVE)
+                    var checkForCollisions = (rowIndex == frogCurrentRowIndex)
+                            && (froggerGameState.value.frogAliveStatus == Frog.FrogAliveStatus.ALIVE)
                     val rowObjectXOffsets = objectOffsets[rowIndex].toMutableList()
 
                     for (objectIndex in 0 until row.objectsInLane.size) {
                         val objectOffset = rowObjectXOffsets[objectIndex]
-                        val objectWidth = columnWidth * row.numColumnsTakenUpByEachObject
-
                         val objectType = row.objectsInLane[objectIndex]
 
-                        // note to self: had to do this to properly match the turtles png margins
-                        val marginCollision = when (objectType) {
-                            RowObject.RowObjectType.THREE_TURTLES -> 0.3
-                            RowObject.RowObjectType.THREE_DIVING_TURTLES -> 0.3
-                            RowObject.RowObjectType.TWO_TURTLES -> 0.4
-                            RowObject.RowObjectType.TWO_DIVING_TURTLES -> 0.4
-                            RowObject.RowObjectType.SHORT_LOG -> 0.2
-                            RowObject.RowObjectType.MEDIUM_LOG -> 0.2
-                            else -> 0.1
+
+                        if (objectType.currentlyUnderwater(froggerGameState.value.rowObjectAnimCounter)) {
+                            checkForCollisions = false
                         }
+
+                        val objectWidth = objectType.getDisplayWidth(frogWidth)
+                        val marginCollision = objectType.getMarginForCollision()
                         if (checkForCollisions &&
                             collisionHappened(
                                 object1StartX = froggerGameState.value.frogXOffset,
-                                object1Width = columnWidth,
+                                object1Width = frogWidth,
                                 object2StartX = objectOffset,
                                 object2Width = objectWidth,
                                 margin = marginCollision
@@ -104,8 +95,7 @@ class FroggerViewModel: ViewModel() {
                                 GameRowType.ROAD -> frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_ON_ROAD
                                 GameRowType.RIVER -> {
                                     frogOnRiverObject = true
-                                    // note to self: the frog width is the column width
-                                    if (frogXOffset < (leftMostBoundForFrog - columnWidth) || frogXOffset >= (rightMostBoundForFrog + columnWidth)) {
+                                    if (frogXOffset < leftMostBoundForFrog || frogXOffset >= rightMostBoundForFrog) {
                                         frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_FROM_GOING_OUT_OF_BOUNDS
                                     }
                                     else if (gameRows[frogCurrentRowIndex].objectsAreGoingLeft) {
@@ -140,9 +130,9 @@ class FroggerViewModel: ViewModel() {
                 }
 
                 // Note to self: putting this here to make sure whether frogOnRiverObject is still false after checking all the river rows
-//                if (frogAliveStatusValue == Frog.FrogAliveStatus.ALIVE && gameRows[frogCurrentRowIndex].rowType == GameRowType.RIVER && (!frogOnRiverObject)) {
-//                    frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_ON_RIVER
-//                }
+                if (frogAliveStatusValue == Frog.FrogAliveStatus.ALIVE && gameRows[frogCurrentRowIndex].rowType == GameRowType.RIVER && (!frogOnRiverObject)) {
+                    frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_ON_RIVER
+                }
 
 
                 // Updating all other game values:
@@ -150,7 +140,7 @@ class FroggerViewModel: ViewModel() {
                 var frogDiedAnimCounter = froggerGameState.value.frogDiedAnimationCounter
 
                 if (frogAliveStatusValue != Frog.FrogAliveStatus.ALIVE) {
-                    if ((frogDiedAnimCounter/7) == 4) {
+                    if ((frogDiedAnimCounter/frogAnimCounterInterval) == 4) {
                         // next frog life:
                         frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
                         frogXOffset = defaultFrogXOffset
@@ -159,9 +149,12 @@ class FroggerViewModel: ViewModel() {
                         frogDiedAnimCounter = -1
                     }
 
-                    else if (frogDiedAnimCounter % 7 == 0) {
+                    else if (frogDiedAnimCounter % frogAnimCounterInterval == 0) {
                         if (frogAliveStatusValue == Frog.FrogAliveStatus.DEAD_ON_ROAD) {
-                            frogDisplayStatus = deathByCarPhases[frogDiedAnimCounter/7]
+                            frogDisplayStatus = deathOnRoadPhases[frogDiedAnimCounter/frogAnimCounterInterval]
+                        }
+                        else if (frogAliveStatusValue == Frog.FrogAliveStatus.DEAD_ON_RIVER) {
+                            frogDisplayStatus = deathOnRiverPhases[frogDiedAnimCounter/frogAnimCounterInterval]
                         }
                     }
 
@@ -209,9 +202,9 @@ class FroggerViewModel: ViewModel() {
         }
         val newX = reduceFloatDigits(
             floatToReduce = if (goingLeft) {
-                froggerGameState.value.frogXOffset - columnWidth
+                froggerGameState.value.frogXOffset - frogWidth
             } else {
-                froggerGameState.value.frogXOffset + columnWidth
+                froggerGameState.value.frogXOffset + frogWidth
             },
             numDigitsAfterDecimal = 2
         )
@@ -257,7 +250,7 @@ class FroggerViewModel: ViewModel() {
         froggerGameState.value = froggerGameState.value.copy(
             gameProgressStatus = GameProgressStatus.IN_PROGRESS,
             frogXOffset = defaultFrogXOffset,
-            frogCurrentRowIndex = gameRows.size - 7,
+            frogCurrentRowIndex = gameRows.size - 1,
             frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
         )
     }
@@ -266,23 +259,20 @@ class FroggerViewModel: ViewModel() {
         screenWidth: Float,
         screenHeight: Float
     ) {
-
         // Horizontal measurements/bounds
         leftMostBoundForRowObject = -(screenWidth * 0.5f)
         rightMostBoundForRowObject = screenWidth * 1.5f
-        leftMostBoundForFrog = 0f
-        rightMostBoundForFrog = screenWidth
-        columnWidth = reduceFloatDigits(
+        frogWidth = reduceFloatDigits(
             floatToReduce = screenWidth * .1f,
             numDigitsAfterDecimal = 2
         )
+        leftMostBoundForFrog = (-1) * frogWidth
+        rightMostBoundForFrog = screenWidth + frogWidth
 
         // Vertical measurements/bounds
-        endZoneHeight = screenHeight * endZoneAmountOfScreen
         rowHeight = screenHeight * rowAmountOfScreen
-        topBarHeight = screenHeight * topBarAmountOfScreen
 
-        var yOffsetValue = topBarHeight + endZoneHeight
+        var yOffsetValue = (screenHeight * topBarAmountOfScreen) + (screenHeight * endZoneAmountOfScreen)
         for (rowIndex in gameRows.indices) {
             gameRows[rowIndex].yOffsetValueForRow = yOffsetValue
             yOffsetValue += rowHeight
@@ -291,9 +281,9 @@ class FroggerViewModel: ViewModel() {
         // X-coordinate values road and river objects
         val newOffsets: List<List<Float>> = listOf(
             listOf(
-                screenWidth,
+                0f,
                 (screenWidth/2),
-                screenWidth * (3/2)
+                screenWidth
             ), // river row 1
             listOf(
                 (-2) * (screenWidth/10),
@@ -303,7 +293,7 @@ class FroggerViewModel: ViewModel() {
             ), // river row 2
             listOf(
                 0f,
-                (6) *(screenWidth/10)
+                (8) *(screenWidth/10)
             ), // river row 3
             listOf(
                 (-1)*(screenWidth/4),

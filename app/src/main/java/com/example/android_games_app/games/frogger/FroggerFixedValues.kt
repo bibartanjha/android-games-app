@@ -8,14 +8,17 @@ import com.example.android_games_app.games.frogger.utils.RowObject.RowObjectType
 object FroggerFixedValues {
 
     val FROGGER_SCREEN_BG_COLOR: Color = Color.Black
-    val defaultFrogXOffset: Float = 0f
-    val topBarAmountOfScreen: Float = 0.07f
-    val endZoneAmountOfScreen: Float = 0.07f
-    val rowAmountOfScreen: Float = 0.04f
+    const val defaultFrogXOffset: Float = 0f
+    const val topBarAmountOfScreen: Float = 0.07f
+    const val endZoneAmountOfScreen: Float = 0.07f
+    const val rowAmountOfScreen: Float = 0.04f
 
-    val rowAnimCounterInterval: Int = 10
-    val numRowAnimPhases: Int = 6
-    val animCounterReset = (rowAnimCounterInterval * numRowAnimPhases) - 1
+    const val rowAnimCounterIntervalLength: Int = 10
+    const val numRowAnimPhases: Int = 6
+    const val animCounterReset = (rowAnimCounterIntervalLength * numRowAnimPhases) - 1
+
+    const val frogAnimCounterInterval: Int = 10
+
 
     val gameRows: List<GameRow> = listOf(
         GameRow(
@@ -25,8 +28,7 @@ object FroggerFixedValues {
                 RowObjectType.MEDIUM_LOG,
                 RowObjectType.MEDIUM_LOG,
                 RowObjectType.MEDIUM_LOG
-            ),
-            numColumnsTakenUpByEachObject = 2.78f
+            )
         ),
         GameRow(
             rowType = GameRowType.RIVER,
@@ -34,10 +36,9 @@ object FroggerFixedValues {
             objectsInLane = listOf(
                 RowObjectType.TWO_TURTLES,
                 RowObjectType.TWO_TURTLES,
-                RowObjectType.TWO_TURTLES,
+                RowObjectType.TWO_DIVING_TURTLES,
                 RowObjectType.TWO_TURTLES
-            ),
-            numColumnsTakenUpByEachObject = 2f
+            )
         ),
         GameRow(
             rowType = GameRowType.RIVER,
@@ -46,8 +47,7 @@ object FroggerFixedValues {
                 RowObjectType.LONG_LOG,
                 RowObjectType.LONG_LOG
             ),
-            speedInRow = 2.5f,
-            numColumnsTakenUpByEachObject = 4.22f
+            speedInRow = 3f
         ),
         GameRow(
             rowType = GameRowType.RIVER,
@@ -56,8 +56,7 @@ object FroggerFixedValues {
                 RowObjectType.SHORT_LOG,
                 RowObjectType.SHORT_LOG,
                 RowObjectType.SHORT_LOG
-            ),
-            numColumnsTakenUpByEachObject = 2f
+            )
         ),
         GameRow(
             rowType = GameRowType.RIVER,
@@ -65,10 +64,9 @@ object FroggerFixedValues {
             objectsInLane = listOf(
                 RowObjectType.THREE_TURTLES,
                 RowObjectType.THREE_TURTLES,
-                RowObjectType.THREE_TURTLES,
+                RowObjectType.THREE_DIVING_TURTLES,
                 RowObjectType.THREE_TURTLES
-            ),
-            numColumnsTakenUpByEachObject = 2f
+            )
         ),
         GameRow(
             rowType = GameRowType.SAFE_ZONE
@@ -76,8 +74,7 @@ object FroggerFixedValues {
         GameRow(
             rowType = GameRowType.ROAD,
             objectsAreGoingLeft = true,
-            objectsInLane = listOf(RowObjectType.TRUCK, RowObjectType.TRUCK),
-            numColumnsTakenUpByEachObject = 2f
+            objectsInLane = listOf(RowObjectType.TRUCK, RowObjectType.TRUCK)
         ),
         GameRow(
             rowType = GameRowType.ROAD,
@@ -87,8 +84,7 @@ object FroggerFixedValues {
                 RowObjectType.GRAY_RACE_CAR,
                 RowObjectType.GRAY_RACE_CAR,
                 RowObjectType.GRAY_RACE_CAR
-            ),
-            numColumnsTakenUpByEachObject = 1f
+            )
         ),
         GameRow(
             rowType = GameRowType.ROAD,
@@ -97,8 +93,7 @@ object FroggerFixedValues {
                 RowObjectType.PINK_CAR,
                 RowObjectType.PINK_CAR,
                 RowObjectType.PINK_CAR
-            ),
-            numColumnsTakenUpByEachObject = 1f
+            )
         ),
         GameRow(
             rowType = GameRowType.ROAD,
@@ -108,8 +103,7 @@ object FroggerFixedValues {
                 RowObjectType.BULLDOZER,
                 RowObjectType.BULLDOZER,
                 RowObjectType.BULLDOZER
-            ),
-            numColumnsTakenUpByEachObject = 1f
+            )
         ),
         GameRow(
             rowType = GameRowType.ROAD,
@@ -118,8 +112,7 @@ object FroggerFixedValues {
                 RowObjectType.YELLOW_RACE_CAR,
                 RowObjectType.YELLOW_RACE_CAR,
                 RowObjectType.YELLOW_RACE_CAR
-            ),
-            numColumnsTakenUpByEachObject = 1f
+            )
         ),
         GameRow(
             rowType = GameRowType.SAFE_ZONE
@@ -134,8 +127,6 @@ object FroggerFixedValues {
     var rightMostBoundForRowObject = Float.POSITIVE_INFINITY
     var leftMostBoundForFrog = Float.NEGATIVE_INFINITY
     var rightMostBoundForFrog = Float.POSITIVE_INFINITY
-    var topBarHeight: Float = 100f
-    var endZoneHeight: Float = 100f
     var rowHeight: Float = 100f
-    var columnWidth: Float = 100f
+    var frogWidth: Float = 100f
 }

@@ -35,16 +35,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.android_games_app.R
-import com.example.android_games_app.games.frogger.utils.Frog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.FROGGER_SCREEN_BG_COLOR
-import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
+import com.example.android_games_app.games.frogger.FroggerFixedValues.frogWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
-import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAnimCounterInterval
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
-import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarHeight
-import com.example.android_games_app.games.frogger.utils.RowObject
+import com.example.android_games_app.games.frogger.utils.Frog.getImageId
+import com.example.android_games_app.games.frogger.utils.RowObject.getDisplayWidth
+import com.example.android_games_app.games.frogger.utils.RowObject.getImage
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.DirectionButtons
 import com.example.android_games_app.utils.GamePauseOrCompleteScreen
@@ -112,7 +111,7 @@ fun FroggerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(topBarHeight.dp)
+                        .height((screenHeight * topBarAmountOfScreen).dp)
                         .paint(
                             painterResource(id = R.drawable.frogger_background_endzone),
                             contentScale = ContentScale.FillBounds
@@ -169,26 +168,21 @@ fun FroggerScreen(
                         for (rowNumber in 0 until gameRows.size) {
                             for (objectIndex in 0 until gameRows[rowNumber].objectsInLane.size) {
                                 val objectType = gameRows[rowNumber].objectsInLane[objectIndex]
-                                val objectAnimationCounter = (gameState.rowObjectAnimCounter / rowAnimCounterInterval)
-                                val obstacleImageResourceValue = RowObject.objectToImageMap[objectType]?.get(objectAnimationCounter)
-                                val obstacleImagePainter = if (obstacleImageResourceValue == null) {
-                                    painterResource(id = RowObject.getDefaultObjectImage())
-                                } else {
-                                    painterResource(id = obstacleImageResourceValue)
-                                }
-                                val obstacleXOffset = gameState.objectXOffsets[rowNumber][objectIndex]
-                                val obstacleWidth = columnWidth * gameRows[rowNumber].numColumnsTakenUpByEachObject
+                                val objectImageResourceValue = objectType.getImage(gameState.rowObjectAnimCounter)
+                                val objectImagePainter = painterResource(id = objectImageResourceValue)
+                                val rowObjectXOffset = gameState.objectXOffsets[rowNumber][objectIndex]
+                                val rowObjectWidth = objectType.getDisplayWidth(frogWidth)
 
                                 Image(
                                     modifier = Modifier
-                                        .width(obstacleWidth.dp)
+                                        .width(rowObjectWidth.dp)
                                         .height(rowHeight.dp)
                                         .padding(start = 0.dp)
                                         .offset(
-                                            x = obstacleXOffset.dp,
+                                            x = rowObjectXOffset.dp,
                                             y = gameRows[rowNumber].yOffsetValueForRow.dp
                                         ),
-                                    painter = obstacleImagePainter,
+                                    painter = objectImagePainter,
                                     contentDescription = null,
                                 )
 
@@ -196,16 +190,11 @@ fun FroggerScreen(
                         }
 
                         // The frog:
-                        val frogImageResourceValue = Frog.statusToImageMap[gameState.frogDisplayStatus]
-                        val frogImagePainter = if (frogImageResourceValue == null) {
-                            painterResource(id = Frog.getDefaultDirectionImage())
-                        } else {
-                            painterResource(id = frogImageResourceValue)
-                        }
+                        val frogImagePainter = painterResource(id = gameState.frogDisplayStatus.getImageId())
 
                         Image(
                             modifier = Modifier
-                                .width(columnWidth.dp)
+                                .width(frogWidth.dp)
                                 .height(rowHeight.dp)
                                 .padding(start = 0.dp)
                                 .offset(

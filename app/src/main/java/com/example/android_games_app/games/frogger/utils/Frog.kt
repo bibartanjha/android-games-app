@@ -8,31 +8,44 @@ object Frog {
         POINTING_UP,
         POINTING_LEFT,
         POINTING_RIGHT,
-        DEATH_BY_CAR_PHASE_1,
-        DEATH_BY_CAR_PHASE_2,
-        DEATH_BY_CAR_PHASE_3,
+        DEATH_ON_ROAD_PHASE_1,
+        DEATH_ON_ROAD_PHASE_2,
+        DEATH_ON_ROAD_PHASE_3,
+        DEATH_ON_RIVER_PHASE_1,
+        DEATH_ON_RIVER_PHASE_2,
+        DEATH_ON_RIVER_PHASE_3,
         DEATH_PHASE_FINAL
     }
 
-    val deathByCarPhases = listOf(
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_1,
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_2,
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_3,
+    val deathOnRoadPhases = listOf(
+        FrogDisplayStatus.DEATH_ON_ROAD_PHASE_1,
+        FrogDisplayStatus.DEATH_ON_ROAD_PHASE_2,
+        FrogDisplayStatus.DEATH_ON_ROAD_PHASE_3,
         FrogDisplayStatus.DEATH_PHASE_FINAL
     )
 
-    val statusToImageMap = hashMapOf(
-        FrogDisplayStatus.POINTING_LEFT to R.drawable.froggerleft,
-        FrogDisplayStatus.POINTING_RIGHT to R.drawable.froggerright,
-        FrogDisplayStatus.POINTING_UP to R.drawable.froggerup,
-        FrogDisplayStatus.POINTING_DOWN to R.drawable.froggerdown,
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_1 to R.drawable.frog_death_on_road_1,
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_2 to R.drawable.frog_death_on_road_2,
-        FrogDisplayStatus.DEATH_BY_CAR_PHASE_3 to R.drawable.frog_death_on_road_3,
-        FrogDisplayStatus.DEATH_PHASE_FINAL to R.drawable.frog_death_final
+    val deathOnRiverPhases = listOf(
+        FrogDisplayStatus.DEATH_ON_RIVER_PHASE_1,
+        FrogDisplayStatus.DEATH_ON_RIVER_PHASE_2,
+        FrogDisplayStatus.DEATH_ON_RIVER_PHASE_3,
+        FrogDisplayStatus.DEATH_PHASE_FINAL
     )
 
-    fun getDefaultDirectionImage(): Int = R.drawable.froggerup
+    fun FrogDisplayStatus.getImageId(): Int {
+        return when (this) {
+            FrogDisplayStatus.POINTING_LEFT -> R.drawable.froggerleft
+            FrogDisplayStatus.POINTING_DOWN -> R.drawable.froggerdown
+            FrogDisplayStatus.POINTING_UP -> R.drawable.froggerup
+            FrogDisplayStatus.POINTING_RIGHT -> R.drawable.froggerright
+            FrogDisplayStatus.DEATH_ON_ROAD_PHASE_1 -> R.drawable.frog_death_explosion_phase_1
+            FrogDisplayStatus.DEATH_ON_ROAD_PHASE_2 -> R.drawable.frog_death_explosion_phase_2
+            FrogDisplayStatus.DEATH_ON_ROAD_PHASE_3 -> R.drawable.frog_death_explosion_phase_3
+            FrogDisplayStatus.DEATH_ON_RIVER_PHASE_1 -> R.drawable.frogger_drown_phase_1
+            FrogDisplayStatus.DEATH_ON_RIVER_PHASE_2 -> R.drawable.frogger_drown_phase_2
+            FrogDisplayStatus.DEATH_ON_RIVER_PHASE_3 -> R.drawable.frogger_drown_phase_3
+            FrogDisplayStatus.DEATH_PHASE_FINAL -> R.drawable.frog_death_final
+        }
+    }
 
     enum class FrogAliveStatus {
         ALIVE, DEAD_ON_ROAD, DEAD_ON_RIVER, DEAD_FROM_GOING_OUT_OF_BOUNDS
