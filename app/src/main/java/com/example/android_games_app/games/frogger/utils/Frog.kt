@@ -3,27 +3,38 @@ package com.example.android_games_app.games.frogger.utils
 import com.example.android_games_app.R
 
 object Frog {
-    enum class FrogStatus {
-        ALIVE_POINTING_DOWN,
-        ALIVE_POINTING_UP,
-        ALIVE_POINTING_LEFT,
-        ALIVE_POINTING_RIGHT,
+    enum class FrogDisplayStatus {
+        POINTING_DOWN,
+        POINTING_UP,
+        POINTING_LEFT,
+        POINTING_RIGHT,
         DEATH_BY_CAR_PHASE_1,
         DEATH_BY_CAR_PHASE_2,
         DEATH_BY_CAR_PHASE_3,
         DEATH_PHASE_FINAL
     }
 
+    val deathByCarPhases = listOf(
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_1,
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_2,
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_3,
+        FrogDisplayStatus.DEATH_PHASE_FINAL
+    )
+
     val statusToImageMap = hashMapOf(
-        FrogStatus.ALIVE_POINTING_LEFT to R.drawable.froggerleft,
-        FrogStatus.ALIVE_POINTING_RIGHT to R.drawable.froggerright,
-        FrogStatus.ALIVE_POINTING_UP to R.drawable.froggerup,
-        FrogStatus.ALIVE_POINTING_DOWN to R.drawable.froggerdown,
-        FrogStatus.DEATH_BY_CAR_PHASE_1 to R.drawable.frog_death_on_road_1,
-        FrogStatus.DEATH_BY_CAR_PHASE_2 to R.drawable.frog_death_on_road_2,
-        FrogStatus.DEATH_BY_CAR_PHASE_3 to R.drawable.frog_death_on_road_3,
-        FrogStatus.DEATH_PHASE_FINAL to R.drawable.frog_death_final
+        FrogDisplayStatus.POINTING_LEFT to R.drawable.froggerleft,
+        FrogDisplayStatus.POINTING_RIGHT to R.drawable.froggerright,
+        FrogDisplayStatus.POINTING_UP to R.drawable.froggerup,
+        FrogDisplayStatus.POINTING_DOWN to R.drawable.froggerdown,
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_1 to R.drawable.frog_death_on_road_1,
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_2 to R.drawable.frog_death_on_road_2,
+        FrogDisplayStatus.DEATH_BY_CAR_PHASE_3 to R.drawable.frog_death_on_road_3,
+        FrogDisplayStatus.DEATH_PHASE_FINAL to R.drawable.frog_death_final
     )
 
     fun getDefaultDirectionImage(): Int = R.drawable.froggerup
+
+    enum class FrogAliveStatus {
+        ALIVE, DEAD_ON_ROAD, DEAD_ON_RIVER, DEAD_FROM_GOING_OUT_OF_BOUNDS
+    }
 }

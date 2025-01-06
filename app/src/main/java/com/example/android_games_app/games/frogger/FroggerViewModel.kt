@@ -1,19 +1,26 @@
 package com.example.android_games_app.games.frogger
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.android_games_app.games.frogger.FroggerFixedValues.animCounterReset
 import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.defaultFrogXOffset
 import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.endZoneAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
+import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForFrog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForRowObject
+import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForFrog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForRowObject
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarHeight
 import com.example.android_games_app.games.frogger.utils.Frog
+import com.example.android_games_app.games.frogger.utils.Frog.deathByCarPhases
+import com.example.android_games_app.games.frogger.utils.GameRowType
+import com.example.android_games_app.games.frogger.utils.RowObject
 import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -31,8 +38,11 @@ class FroggerViewModel: ViewModel() {
         observeIsPausedState()
     }
 
-    private val roadSpeed = 2f
-    private val riverSpeed = 3
+//    private val roadSpeed = 2f
+//    private val riverSpeed = 3f
+
+    private val normalSpeedOffset = 2f
+    private val fasterSpeedOffset = 2.5f
 
     private fun observeIsPausedState() {
         viewModelScope.launch {
@@ -50,42 +60,74 @@ class FroggerViewModel: ViewModel() {
         if (job != null && job?.isActive == true) return
 
         job = viewModelScope.launch {
-            var collisionHappenedRightNow = false
             while (froggerGameState.value.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
                 delay(25)
 
-                val updatedObjectOffsets = froggerGameState.value.objectXOffsets.toMutableList()
-                for (laneNumber in 0 until updatedObjectOffsets.size) {
-                    val currentLane = updatedObjectOffsets[laneNumber].toMutableList()
-                    
-                    for (objectNumber in 0 until currentLane.size) {
-                        val objectXOffset = currentLane[objectNumber]
-                        if (laneNumber == froggerGameState.value.frogCurrentRowIndex && !(froggerGameState.value.frogDiedOnRoad)) {
-                            if (
-                                collisionHappened(
-                                    object1StartX = froggerGameState.value.frogXOffset,
-                                    object1Width = columnWidth,
-                                    object2StartX = objectXOffset,
-                                    object2Width = if (gameRows[laneNumber].containsWiderObject) {
-                                        columnWidth * 2
-                                    } else {
-                                        columnWidth
+                var frogXOffset = froggerGameState.value.frogXOffset
+                var frogAliveStatusValue = froggerGameState.value.frogAliveStatus
+                var frogCurrentRowIndex = froggerGameState.value.frogCurrentRowIndex
+                val objectOffsets = froggerGameState.value.objectXOffsets.toMutableList()
+
+                var frogOnRiverObject = false
+
+                for (rowIndex in 0 until gameRows.size) {
+                    var row = gameRows[rowIndex]
+                    var checkForCollisions = (rowIndex == frogCurrentRowIndex) && (froggerGameState.value.frogAliveStatus == Frog.FrogAliveStatus.ALIVE)
+                    val rowObjectXOffsets = objectOffsets[rowIndex].toMutableList()
+
+                    for (objectIndex in 0 until row.objectsInLane.size) {
+                        val objectOffset = rowObjectXOffsets[objectIndex]
+                        val objectWidth = columnWidth * row.numColumnsTakenUpByEachObject
+
+                        val objectType = row.objectsInLane[objectIndex]
+
+                        // note to self: had to do this to properly match the turtles png margins
+                        val marginCollision = when (objectType) {
+                            RowObject.RowObjectType.THREE_TURTLES -> 0.3
+                            RowObject.RowObjectType.THREE_DIVING_TURTLES -> 0.3
+                            RowObject.RowObjectType.TWO_TURTLES -> 0.4
+                            RowObject.RowObjectType.TWO_DIVING_TURTLES -> 0.4
+                            RowObject.RowObjectType.SHORT_LOG -> 0.2
+                            RowObject.RowObjectType.MEDIUM_LOG -> 0.2
+                            else -> 0.1
+                        }
+                        if (checkForCollisions &&
+                            collisionHappened(
+                                object1StartX = froggerGameState.value.frogXOffset,
+                                object1Width = columnWidth,
+                                object2StartX = objectOffset,
+                                object2Width = objectWidth,
+                                margin = marginCollision
+                            )
+                        ) {
+                            when (row.rowType) {
+                                GameRowType.ROAD -> frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_ON_ROAD
+                                GameRowType.RIVER -> {
+                                    frogOnRiverObject = true
+                                    // note to self: the frog width is the column width
+                                    if (frogXOffset < (leftMostBoundForFrog - columnWidth) || frogXOffset >= (rightMostBoundForFrog + columnWidth)) {
+                                        frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_FROM_GOING_OUT_OF_BOUNDS
                                     }
-                                )
-                            ) {
-                                collisionHappenedRightNow = true
+                                    else if (gameRows[frogCurrentRowIndex].objectsAreGoingLeft) {
+                                        frogXOffset -= row.speedInRow
+                                    } else {
+                                        frogXOffset += row.speedInRow
+                                    }
+                                }
+                                else -> {}
                             }
                         }
-                        currentLane[objectNumber] = if (gameRows[laneNumber].objectsAreGoingLeft) {
-                            val newVal = objectXOffset - roadSpeed
+
+                        // Moving row objects:
+                        rowObjectXOffsets[objectIndex] = if (row.objectsAreGoingLeft) {
+                            val newVal = objectOffset - row.speedInRow
                             if (newVal <= leftMostBoundForRowObject) {
                                 rightMostBoundForRowObject - 1
                             } else {
                                 newVal
                             }
-                        }
-                        else {
-                            val newVal = objectXOffset + roadSpeed
+                        } else {
+                            val newVal = objectOffset + row.speedInRow
                             if (newVal >= rightMostBoundForRowObject) {
                                 leftMostBoundForRowObject + 1
                             } else {
@@ -93,44 +135,53 @@ class FroggerViewModel: ViewModel() {
                             }
                         }
                     }
-                    updatedObjectOffsets[laneNumber] = currentLane
+
+                    objectOffsets[rowIndex] = rowObjectXOffsets
                 }
 
-                var updatedFrogDiedOnRoadValue = froggerGameState.value.frogDiedOnRoad
-                var updatedFrogStatus = froggerGameState.value.frogStatus
-                var updatedAnimCounter = froggerGameState.value.frogDiedOnRoadAnimationCounter
-                var updatedFrogXOffset = froggerGameState.value.frogXOffset
-                var updatedFrogCurrentRowIndex = froggerGameState.value.frogCurrentRowIndex
+                // Note to self: putting this here to make sure whether frogOnRiverObject is still false after checking all the river rows
+//                if (frogAliveStatusValue == Frog.FrogAliveStatus.ALIVE && gameRows[frogCurrentRowIndex].rowType == GameRowType.RIVER && (!frogOnRiverObject)) {
+//                    frogAliveStatusValue = Frog.FrogAliveStatus.DEAD_ON_RIVER
+//                }
 
-                if (froggerGameState.value.frogDiedOnRoad) {
-                    if (updatedAnimCounter == 0) {
-                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_1
-                    } else if (updatedAnimCounter == 7) {
-                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_2
-                    } else if (updatedAnimCounter == 14) {
-                        updatedFrogStatus = Frog.FrogStatus.DEATH_BY_CAR_PHASE_3
-                    } else if (updatedAnimCounter == 21) {
-                        updatedFrogStatus = Frog.FrogStatus.DEATH_PHASE_FINAL
-                    } else if (updatedAnimCounter == 28) {
-                        updatedFrogStatus = Frog.FrogStatus.ALIVE_POINTING_UP
-                        updatedFrogXOffset = defaultFrogXOffset
-                        updatedFrogCurrentRowIndex = gameRows.size - 1
-                        updatedFrogDiedOnRoadValue = false
-                        updatedAnimCounter = -1
+
+                // Updating all other game values:
+                var frogDisplayStatus = froggerGameState.value.frogDisplayStatus
+                var frogDiedAnimCounter = froggerGameState.value.frogDiedAnimationCounter
+
+                if (frogAliveStatusValue != Frog.FrogAliveStatus.ALIVE) {
+                    if ((frogDiedAnimCounter/7) == 4) {
+                        // next frog life:
+                        frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
+                        frogXOffset = defaultFrogXOffset
+                        frogCurrentRowIndex = gameRows.size - 1
+                        frogAliveStatusValue = Frog.FrogAliveStatus.ALIVE
+                        frogDiedAnimCounter = -1
                     }
-                    updatedAnimCounter += 1
-                } else if (collisionHappenedRightNow) {
-                    updatedFrogDiedOnRoadValue = true
-                    collisionHappenedRightNow = false
+
+                    else if (frogDiedAnimCounter % 7 == 0) {
+                        if (frogAliveStatusValue == Frog.FrogAliveStatus.DEAD_ON_ROAD) {
+                            frogDisplayStatus = deathByCarPhases[frogDiedAnimCounter/7]
+                        }
+                    }
+
+                    frogDiedAnimCounter += 1
+                }
+
+                val rowAnimCounter = if (froggerGameState.value.rowObjectAnimCounter == animCounterReset) {
+                    0
+                } else {
+                    froggerGameState.value.rowObjectAnimCounter + 1
                 }
 
                 froggerGameState.value = froggerGameState.value.copy(
-                    objectXOffsets = updatedObjectOffsets,
-                    frogStatus = updatedFrogStatus,
-                    frogDiedOnRoad = updatedFrogDiedOnRoadValue,
-                    frogDiedOnRoadAnimationCounter = updatedAnimCounter,
-                    frogXOffset = updatedFrogXOffset,
-                    frogCurrentRowIndex = updatedFrogCurrentRowIndex,
+                    objectXOffsets = objectOffsets,
+                    frogDisplayStatus = frogDisplayStatus,
+                    frogAliveStatus = frogAliveStatusValue,
+                    frogDiedAnimationCounter = frogDiedAnimCounter,
+                    frogXOffset = frogXOffset,
+                    frogCurrentRowIndex = frogCurrentRowIndex,
+                    rowObjectAnimCounter = rowAnimCounter
                 )
             }
         }
@@ -153,7 +204,7 @@ class FroggerViewModel: ViewModel() {
     }
 
     fun onFrogHorizontalMovement(goingLeft: Boolean, screenWidth: Float) {
-        if (froggerGameState.value.frogDiedOnRoad) {
+        if (froggerGameState.value.frogAliveStatus != Frog.FrogAliveStatus.ALIVE) {
             return
         }
         val newX = reduceFloatDigits(
@@ -168,17 +219,17 @@ class FroggerViewModel: ViewModel() {
         if (newX >= 0 && newX < screenWidth) {
             froggerGameState.value = froggerGameState.value.copy(
                 frogXOffset = newX,
-                frogStatus = if (goingLeft) {
-                    Frog.FrogStatus.ALIVE_POINTING_LEFT
+                frogDisplayStatus = if (goingLeft) {
+                    Frog.FrogDisplayStatus.POINTING_LEFT
                 } else {
-                    Frog.FrogStatus.ALIVE_POINTING_RIGHT
+                    Frog.FrogDisplayStatus.POINTING_RIGHT
                 }
             )
         }
     }
 
     fun onFrogVerticalMovement(goingUp: Boolean) {
-        if (froggerGameState.value.frogDiedOnRoad) {
+        if (froggerGameState.value.frogAliveStatus != Frog.FrogAliveStatus.ALIVE) {
             return
         }
         val newRow = if (goingUp) {
@@ -190,10 +241,10 @@ class FroggerViewModel: ViewModel() {
         if (newRow >= 0 && newRow < gameRows.size) {
             froggerGameState.value = froggerGameState.value.copy(
                 frogCurrentRowIndex = newRow,
-                frogStatus = if (goingUp) {
-                    Frog.FrogStatus.ALIVE_POINTING_UP
+                frogDisplayStatus = if (goingUp) {
+                    Frog.FrogDisplayStatus.POINTING_UP
                 } else {
-                    Frog.FrogStatus.ALIVE_POINTING_DOWN
+                    Frog.FrogDisplayStatus.POINTING_DOWN
                 }
 
             )
@@ -206,8 +257,8 @@ class FroggerViewModel: ViewModel() {
         froggerGameState.value = froggerGameState.value.copy(
             gameProgressStatus = GameProgressStatus.IN_PROGRESS,
             frogXOffset = defaultFrogXOffset,
-            frogCurrentRowIndex = gameRows.size - 1,
-            frogStatus = Frog.FrogStatus.ALIVE_POINTING_UP
+            frogCurrentRowIndex = gameRows.size - 7,
+            frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
         )
     }
 
@@ -219,6 +270,8 @@ class FroggerViewModel: ViewModel() {
         // Horizontal measurements/bounds
         leftMostBoundForRowObject = -(screenWidth * 0.5f)
         rightMostBoundForRowObject = screenWidth * 1.5f
+        leftMostBoundForFrog = 0f
+        rightMostBoundForFrog = screenWidth
         columnWidth = reduceFloatDigits(
             floatToReduce = screenWidth * .1f,
             numDigitsAfterDecimal = 2
@@ -237,11 +290,32 @@ class FroggerViewModel: ViewModel() {
 
         // X-coordinate values road and river objects
         val newOffsets: List<List<Float>> = listOf(
-            emptyList(), // river row 1
-            emptyList(), // river row 2
-            emptyList(), // river row 3
-            emptyList(), // river row 4
-            emptyList(), // river row 5
+            listOf(
+                screenWidth,
+                (screenWidth/2),
+                screenWidth * (3/2)
+            ), // river row 1
+            listOf(
+                (-2) * (screenWidth/10),
+                2 * (screenWidth/10),
+                (6) *(screenWidth/10),
+                screenWidth
+            ), // river row 2
+            listOf(
+                0f,
+                (6) *(screenWidth/10)
+            ), // river row 3
+            listOf(
+                (-1)*(screenWidth/4),
+                (screenWidth/4),
+                screenWidth * (5/4)
+            ), // river row 4
+            listOf(
+                0f,
+                4 * (screenWidth/10),
+                (8) *(screenWidth/10),
+                (12) * (screenWidth/10)
+            ), // river row 5
             emptyList(), // safe zone
             listOf(
                 (-1)*(screenWidth/10),
@@ -285,18 +359,16 @@ fun collisionHappened(
     object1StartX: Float,
     object1Width: Float,
     object2StartX: Float,
-    object2Width: Float
+    object2Width: Float,
+    margin: Double = 0.0,
 ): Boolean {
     val object1EndX = object1StartX + object1Width
     val object2EndX = object2StartX + object2Width
 
-    /**
-     * Note to self: adding a .1 margin
-     */
-    val object1StartXWithMargin = object1StartX + (object1Width * .1)
-    val object1EndXWithMargin = object1EndX - (object1Width * .1)
+    val object2StartXWithMargin = object2StartX + (object2Width * margin)
+    val object2EndXWithMargin = object2EndX - (object2Width * margin)
 
-    return !((object1StartXWithMargin > object2EndX) || (object1EndXWithMargin < object2StartX))
+    return !((object1StartX > object2EndXWithMargin) || (object1EndX < object2StartXWithMargin))
 }
 
 

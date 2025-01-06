@@ -40,6 +40,7 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.FROGGER_SC
 import com.example.android_games_app.games.frogger.FroggerFixedValues.columnWidth
 import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
+import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAnimCounterInterval
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarHeight
@@ -64,8 +65,6 @@ fun FroggerScreen(
     val screenHeight = configuration.screenHeightDp.toFloat()
 
     var screenWidthDependentValuesAreSet by remember { mutableStateOf(false) }
-
-    var printOnce by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (!screenWidthDependentValuesAreSet) {
@@ -167,21 +166,19 @@ fun FroggerScreen(
                 ) {
                     if (screenWidthDependentValuesAreSet) {
                         // The road objects and river objects:
-                        for (rowNumber in 0 until gameState.objectXOffsets.size) {
-                            val rowInformation = gameRows[rowNumber]
-                            for (obstacleXOffset in gameState.objectXOffsets[rowNumber]) {
-                                val obstacleImageResourceValue =
-                                    RowObject.objectToImageMap[rowInformation.objectTypeInLane]
+                        for (rowNumber in 0 until gameRows.size) {
+                            for (objectIndex in 0 until gameRows[rowNumber].objectsInLane.size) {
+                                val objectType = gameRows[rowNumber].objectsInLane[objectIndex]
+                                val objectAnimationCounter = (gameState.rowObjectAnimCounter / rowAnimCounterInterval)
+                                val obstacleImageResourceValue = RowObject.objectToImageMap[objectType]?.get(objectAnimationCounter)
                                 val obstacleImagePainter = if (obstacleImageResourceValue == null) {
                                     painterResource(id = RowObject.getDefaultObjectImage())
                                 } else {
                                     painterResource(id = obstacleImageResourceValue)
                                 }
-                                val obstacleWidth = if (rowInformation.containsWiderObject) {
-                                    columnWidth * 2
-                                } else {
-                                    columnWidth
-                                }
+                                val obstacleXOffset = gameState.objectXOffsets[rowNumber][objectIndex]
+                                val obstacleWidth = columnWidth * gameRows[rowNumber].numColumnsTakenUpByEachObject
+
                                 Image(
                                     modifier = Modifier
                                         .width(obstacleWidth.dp)
@@ -189,16 +186,17 @@ fun FroggerScreen(
                                         .padding(start = 0.dp)
                                         .offset(
                                             x = obstacleXOffset.dp,
-                                            y = rowInformation.yOffsetValueForRow.dp
+                                            y = gameRows[rowNumber].yOffsetValueForRow.dp
                                         ),
                                     painter = obstacleImagePainter,
                                     contentDescription = null,
                                 )
+
                             }
                         }
 
                         // The frog:
-                        val frogImageResourceValue = Frog.statusToImageMap[gameState.frogStatus]
+                        val frogImageResourceValue = Frog.statusToImageMap[gameState.frogDisplayStatus]
                         val frogImagePainter = if (frogImageResourceValue == null) {
                             painterResource(id = Frog.getDefaultDirectionImage())
                         } else {
