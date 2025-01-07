@@ -288,7 +288,7 @@ class FroggerViewModel: ViewModel() {
                     frogHomes[homeEntered].isOccupied = true
                     var anyEmptyHomes = false
                     for (frogHome in frogHomes) {
-                        if (!frogHomes[homeEntered].isOccupied) {
+                        if (!frogHome.isOccupied) {
                             anyEmptyHomes = true
                         }
                     }
