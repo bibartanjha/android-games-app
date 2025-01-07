@@ -246,26 +246,28 @@ fun FroggerScreen(
                             }
                         }
 
-                        // The frog:
-                        val frogImagePainter = painterResource(id = gameState.frogDisplayStatus.getImageId())
+                        if (gameState.gameProgressStatus in listOf(GameProgressStatus.IN_PROGRESS,  GameProgressStatus.PAUSED)) {
+                            // The frog:
+                            val frogImagePainter = painterResource(id = gameState.frogDisplayStatus.getImageId())
 
-                        Image(
-                            modifier = Modifier
-                                .width(frogWidth.dp)
-                                .height(rowHeight.dp)
-                                .padding(start = 0.dp)
-                                .offset(
-                                    x = gameState.frogXOffset.dp,
+                            Image(
+                                modifier = Modifier
+                                    .width(frogWidth.dp)
+                                    .height(rowHeight.dp)
+                                    .padding(start = 0.dp)
+                                    .offset(
+                                        x = gameState.frogXOffset.dp,
 
-                                    y = if (gameState.frogCurrentRowIndex < 0) {
-                                        yOffsetForFrogHomes.dp
-                                    } else {
-                                        gameRows[gameState.frogCurrentRowIndex].yOffsetValueForRow.dp
-                                    }
-                                ),
-                            painter = frogImagePainter,
-                            contentDescription = null,
-                        )
+                                        y = if (gameState.frogCurrentRowIndex < 0) {
+                                            yOffsetForFrogHomes.dp
+                                        } else {
+                                            gameRows[gameState.frogCurrentRowIndex].yOffsetValueForRow.dp
+                                        }
+                                    ),
+                                painter = frogImagePainter,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
 
