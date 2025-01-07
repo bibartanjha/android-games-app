@@ -10,7 +10,7 @@ object FroggerFixedValues {
     val FROGGER_SCREEN_BG_COLOR: Color = Color.Black
     const val defaultFrogXOffset: Float = 0f
     const val topBarAmountOfScreen: Float = 0.07f
-    const val endZoneAmountOfScreen: Float = 0.07f
+    const val frogHomesAmountOfScreenHeight: Float = 0.07f
     const val rowAmountOfScreen: Float = 0.04f
 
     const val rowAnimCounterIntervalLength: Int = 10
@@ -18,6 +18,8 @@ object FroggerFixedValues {
     const val animCounterReset = (rowAnimCounterIntervalLength * numRowAnimPhases) - 1
 
     const val frogAnimCounterInterval: Int = 10
+
+    const val numFrogHomes: Int = 5
 
 
     val gameRows: List<GameRow> = listOf(
@@ -34,10 +36,10 @@ object FroggerFixedValues {
             rowType = GameRowType.RIVER,
             objectsAreGoingLeft = true,
             objectsInLane = listOf(
-                RowObjectType.TWO_TURTLES,
-                RowObjectType.TWO_TURTLES,
-                RowObjectType.TWO_DIVING_TURTLES,
-                RowObjectType.TWO_TURTLES
+                RowObjectType.THREE_TURTLES,
+                RowObjectType.THREE_TURTLES,
+                RowObjectType.THREE_DIVING_TURTLES,
+                RowObjectType.THREE_TURTLES
             )
         ),
         GameRow(
@@ -129,4 +131,8 @@ object FroggerFixedValues {
     var rightMostBoundForFrog = Float.POSITIVE_INFINITY
     var rowHeight: Float = 100f
     var frogWidth: Float = 100f
+
+    var frogHomeWidth = 100f
+    val frogHomesStartIndices: MutableList<Float> = MutableList(5) { 0f }
+    var yOffsetForFrogHomes = 100f
 }

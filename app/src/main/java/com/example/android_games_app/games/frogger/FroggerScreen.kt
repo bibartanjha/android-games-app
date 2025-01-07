@@ -41,6 +41,7 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowHeight
 import com.example.android_games_app.games.frogger.FroggerFixedValues.topBarAmountOfScreen
+import com.example.android_games_app.games.frogger.FroggerFixedValues.yOffsetForFrogHomes
 import com.example.android_games_app.games.frogger.utils.Frog.getImageId
 import com.example.android_games_app.games.frogger.utils.RowObject.getDisplayWidth
 import com.example.android_games_app.games.frogger.utils.RowObject.getImage
@@ -112,11 +113,36 @@ fun FroggerScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height((screenHeight * topBarAmountOfScreen).dp)
-                        .paint(
-                            painterResource(id = R.drawable.frogger_background_endzone),
-                            contentScale = ContentScale.FillBounds
-                        )
-                )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        for (j in 0 until gameState.frogHomes.size) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            ) {
+                                Image(
+                                    painter = painterResource(
+                                        id = if (gameState.frogHomes[j].isOccupied) {
+                                            R.drawable.frogger_home_occupied
+                                        } else {
+                                            R.drawable.frogger_home
+                                        }
+
+                                    ),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillBounds,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                    }
+                }
+
+
                 repeat(5) {
                     Box(
                         modifier = Modifier
@@ -167,11 +193,11 @@ fun FroggerScreen(
                         // The road objects and river objects:
                         for (rowNumber in 0 until gameRows.size) {
                             for (objectIndex in 0 until gameRows[rowNumber].objectsInLane.size) {
-                                val objectType = gameRows[rowNumber].objectsInLane[objectIndex]
-                                val objectImageResourceValue = objectType.getImage(gameState.rowObjectAnimCounter)
+                                val rowObject = gameRows[rowNumber].objectsInLane[objectIndex]
+                                val objectImageResourceValue = rowObject.getImage(gameState.rowObjectAnimCounter)
                                 val objectImagePainter = painterResource(id = objectImageResourceValue)
                                 val rowObjectXOffset = gameState.objectXOffsets[rowNumber][objectIndex]
-                                val rowObjectWidth = objectType.getDisplayWidth(frogWidth)
+                                val rowObjectWidth = rowObject.getDisplayWidth(frogWidth)
 
                                 Image(
                                     modifier = Modifier
@@ -199,7 +225,12 @@ fun FroggerScreen(
                                 .padding(start = 0.dp)
                                 .offset(
                                     x = gameState.frogXOffset.dp,
-                                    y = gameRows[gameState.frogCurrentRowIndex].yOffsetValueForRow.dp
+
+                                    y = if (gameState.frogCurrentRowIndex < 0) {
+                                        yOffsetForFrogHomes.dp
+                                    } else {
+                                        gameRows[gameState.frogCurrentRowIndex].yOffsetValueForRow.dp
+                                    }
                                 ),
                             painter = frogImagePainter,
                             contentDescription = null,

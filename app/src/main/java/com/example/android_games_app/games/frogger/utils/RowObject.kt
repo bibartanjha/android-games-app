@@ -40,10 +40,10 @@ object RowObject {
         when (this) {
             RowObjectType.SHORT_LOG -> 0.2
             RowObjectType.MEDIUM_LOG -> 0.2
-            RowObjectType.THREE_TURTLES -> 0.3
-            RowObjectType.TWO_TURTLES -> 0.4
-            RowObjectType.THREE_DIVING_TURTLES -> 0.3
-            RowObjectType.TWO_DIVING_TURTLES -> 0.4
+            RowObjectType.THREE_TURTLES -> 0.2
+            RowObjectType.TWO_TURTLES -> 0.2
+            RowObjectType.THREE_DIVING_TURTLES -> 0.2
+            RowObjectType.TWO_DIVING_TURTLES -> 0.2
             else -> 0.1
         }
 

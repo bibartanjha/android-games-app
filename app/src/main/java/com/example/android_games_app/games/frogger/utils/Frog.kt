@@ -17,7 +17,7 @@ object Frog {
         DEATH_PHASE_FINAL
     }
 
-    val deathOnRoadPhases = listOf(
+    val explosionPhases = listOf(
         FrogDisplayStatus.DEATH_ON_ROAD_PHASE_1,
         FrogDisplayStatus.DEATH_ON_ROAD_PHASE_2,
         FrogDisplayStatus.DEATH_ON_ROAD_PHASE_3,
@@ -48,6 +48,6 @@ object Frog {
     }
 
     enum class FrogAliveStatus {
-        ALIVE, DEAD_ON_ROAD, DEAD_ON_RIVER, DEAD_FROM_GOING_OUT_OF_BOUNDS
+        ALIVE, EXPLODED, DROWNED, DEAD_FROM_GOING_OUT_OF_BOUNDS
     }
 }

@@ -1,7 +1,9 @@
 package com.example.android_games_app.games.frogger
 
 import com.example.android_games_app.games.frogger.FroggerFixedValues.defaultFrogXOffset
+import com.example.android_games_app.games.frogger.FroggerFixedValues.numFrogHomes
 import com.example.android_games_app.games.frogger.utils.Frog
+import com.example.android_games_app.games.frogger.utils.FrogHome
 import com.example.android_games_app.utils.GameProgressStatus
 
 data class FroggerGameState (
@@ -14,5 +16,11 @@ data class FroggerGameState (
     val frogAliveStatus: Frog.FrogAliveStatus = Frog.FrogAliveStatus.ALIVE,
     var frogDiedAnimationCounter: Int = 0,
 
-    var rowObjectAnimCounter: Int = 0
+    var rowObjectAnimCounter: Int = 0,
+//    val travelingWithRiverObject: Boolean = false,
+    val riverObjectThatFrogIsTravelingWith: Pair<Int, Int> = Pair(-1, -1), // index corresponds to gameRows
+
+    val frogHomes: List<FrogHome> = List(numFrogHomes) {
+        FrogHome(isOccupied = false)
+    }
 )
