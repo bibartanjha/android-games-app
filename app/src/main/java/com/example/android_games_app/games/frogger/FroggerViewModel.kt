@@ -13,6 +13,7 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.gameRows
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForFrog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.leftMostBoundForRowObject
 import com.example.android_games_app.games.frogger.FroggerFixedValues.numFrogHomes
+import com.example.android_games_app.games.frogger.FroggerFixedValues.numLivesDefault
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForFrog
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rightMostBoundForRowObject
 import com.example.android_games_app.games.frogger.FroggerFixedValues.rowAmountOfScreen
@@ -22,6 +23,7 @@ import com.example.android_games_app.games.frogger.FroggerFixedValues.yOffsetFor
 import com.example.android_games_app.games.frogger.utils.Frog
 import com.example.android_games_app.games.frogger.utils.Frog.deathOnRiverPhases
 import com.example.android_games_app.games.frogger.utils.Frog.explosionPhases
+import com.example.android_games_app.games.frogger.utils.FrogHome
 import com.example.android_games_app.games.frogger.utils.GameRowType
 import com.example.android_games_app.games.frogger.utils.RowObject.currentlyUnderwater
 import com.example.android_games_app.games.frogger.utils.RowObject.getDisplayWidth
@@ -142,27 +144,44 @@ class FroggerViewModel: ViewModel() {
                 // Updating all other game values:
                 var frogDisplayStatus = froggerGameState.value.frogDisplayStatus
                 var frogDiedAnimCounter = froggerGameState.value.frogDiedAnimationCounter
+                var numLivesLeft = froggerGameState.value.numLivesLeft
+                var gameProgressStatus = froggerGameState.value.gameProgressStatus
 
                 if (frogAliveStatusValue != Frog.FrogAliveStatus.ALIVE) {
-                    if ((frogDiedAnimCounter/frogAnimCounterInterval) == 4) {
-                        // next frog life:
-                        frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
-                        frogXOffset = defaultFrogXOffset
-                        frogCurrentRowIndex = gameRows.size - 1
-                        frogAliveStatusValue = Frog.FrogAliveStatus.ALIVE
-                        frogDiedAnimCounter = -1
-                        riverObjectThatFrogIsTravelingWith = Pair(-1, -1)
-                    }
-
-                    else if (frogDiedAnimCounter % frogAnimCounterInterval == 0) {
+                    if (frogDiedAnimCounter % frogAnimCounterInterval == 0) {
+                        var reachedEndOfDyingAnimation = false
+                        val indexExplosionPhase = frogDiedAnimCounter/frogAnimCounterInterval
                         if (frogAliveStatusValue == Frog.FrogAliveStatus.EXPLODED) {
-                            frogDisplayStatus = explosionPhases[frogDiedAnimCounter/frogAnimCounterInterval]
+                            if (indexExplosionPhase >= explosionPhases.size) {
+                                reachedEndOfDyingAnimation = true
+                            } else {
+                                frogDisplayStatus = explosionPhases[indexExplosionPhase]
+                            }
                         }
                         else if (frogAliveStatusValue == Frog.FrogAliveStatus.DROWNED) {
-                            frogDisplayStatus = deathOnRiverPhases[frogDiedAnimCounter/frogAnimCounterInterval]
+                            if (indexExplosionPhase >= deathOnRiverPhases.size) {
+                                reachedEndOfDyingAnimation = true
+                            } else {
+                                frogDisplayStatus = deathOnRiverPhases[indexExplosionPhase]
+                            }
+                        } else {
+                            reachedEndOfDyingAnimation = (frogDiedAnimCounter/frogAnimCounterInterval) == 4
+                        }
+
+                        if (reachedEndOfDyingAnimation) {
+                            // next frog life:
+                            frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
+                            frogXOffset = defaultFrogXOffset
+                            frogCurrentRowIndex = gameRows.size - 1
+                            frogAliveStatusValue = Frog.FrogAliveStatus.ALIVE
+                            frogDiedAnimCounter = -1
+                            riverObjectThatFrogIsTravelingWith = Pair(-1, -1)
+                            numLivesLeft -= 1
+                            if (numLivesLeft == 0) {
+                                gameProgressStatus = GameProgressStatus.LOST
+                            }
                         }
                     }
-
                     frogDiedAnimCounter += 1
                 }
 
@@ -180,7 +199,9 @@ class FroggerViewModel: ViewModel() {
                     frogXOffset = frogXOffset,
                     frogCurrentRowIndex = frogCurrentRowIndex,
                     rowObjectAnimCounter = rowAnimCounter,
-                    riverObjectThatFrogIsTravelingWith = riverObjectThatFrogIsTravelingWith
+                    riverObjectThatFrogIsTravelingWith = riverObjectThatFrogIsTravelingWith,
+                    numLivesLeft = numLivesLeft,
+                    gameProgressStatus = gameProgressStatus
                 )
             }
         }
@@ -265,6 +286,19 @@ class FroggerViewModel: ViewModel() {
                     )
                 } else {
                     frogHomes[homeEntered].isOccupied = true
+                    var anyEmptyHomes = false
+                    for (frogHome in frogHomes) {
+                        if (!frogHomes[homeEntered].isOccupied) {
+                            anyEmptyHomes = true
+                        }
+                    }
+
+                    val gameProgressStatus = if (!anyEmptyHomes) {
+                        GameProgressStatus.WON
+                    } else {
+                        froggerGameState.value.gameProgressStatus
+                    }
+
                     froggerGameState.value = froggerGameState.value.copy(
                         frogHomes = frogHomes,
                         frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP,
@@ -272,7 +306,8 @@ class FroggerViewModel: ViewModel() {
                         frogCurrentRowIndex = gameRows.size - 1,
                         frogAliveStatus = Frog.FrogAliveStatus.ALIVE,
                         frogDiedAnimationCounter = 0,
-                        riverObjectThatFrogIsTravelingWith = Pair(-1, -1)
+                        riverObjectThatFrogIsTravelingWith = Pair(-1, -1),
+                        gameProgressStatus = gameProgressStatus
                     )
                 }
             }
@@ -304,7 +339,15 @@ class FroggerViewModel: ViewModel() {
             gameProgressStatus = GameProgressStatus.IN_PROGRESS,
             frogXOffset = defaultFrogXOffset,
             frogCurrentRowIndex = gameRows.size - 1,
-            frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP
+            frogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP,
+            frogAliveStatus = Frog.FrogAliveStatus.ALIVE,
+            frogDiedAnimationCounter = 0,
+            rowObjectAnimCounter = 0,
+            riverObjectThatFrogIsTravelingWith = Pair(-1, -1),
+            frogHomes = List(numFrogHomes) {
+                FrogHome(isOccupied = false)
+            },
+            numLivesLeft = numLivesDefault
         )
     }
 

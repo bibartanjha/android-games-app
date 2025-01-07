@@ -79,7 +79,9 @@ object RowObject {
 
     private fun currAnimCounterInterval(rowObjectAnimCounter: Int) = rowObjectAnimCounter / rowAnimCounterIntervalLength
 
-    fun RowObjectType.getImage(rowObjectAnimCounter: Int = 0): Int =
+    fun RowObjectType.getImage(
+        rowObjectAnimCounter: Int = 0
+    ): Int =
         when (this) {
             RowObjectType.YELLOW_RACE_CAR -> R.drawable.frogger_yellow_racecar
             RowObjectType.BULLDOZER -> R.drawable.frogger_bulldozer

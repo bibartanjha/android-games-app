@@ -3,6 +3,8 @@ package com.example.android_games_app.games.frogger
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.android_games_app.R
@@ -100,6 +104,33 @@ fun FroggerScreen(
                     modifier = Modifier.fillMaxWidth()
                         .height((screenHeight * topBarAmountOfScreen).dp)
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .border(2.dp, Color.White, shape = RoundedCornerShape(4.dp))
+                            .padding(horizontal = 30.dp, vertical = 10.dp),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Lives:",
+                                color = Color.White,
+                                fontWeight = FontWeight.W800,
+                            )
+                            val livesIconWidth = (frogWidth/2)
+                            val livesIconHeight = (screenHeight * topBarAmountOfScreen)/3
+                            for (i in 0 until gameState.numLivesLeft) {
+                                Image(
+                                    painter = painterResource(R.drawable.froggerup),
+                                    modifier = Modifier
+                                        .width(livesIconWidth.dp)
+                                        .height(livesIconHeight.dp)
+                                    ,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = { froggerViewModel.pauseGame() },
@@ -289,9 +320,9 @@ fun FroggerScreen(
             } else if (gameState.gameProgressStatus in listOf(GameProgressStatus.LOST, GameProgressStatus.WON)) {
                 GamePauseOrCompleteScreen(
                     text = if (gameState.gameProgressStatus == GameProgressStatus.LOST) {
-                        "Game Over"
+                        "No lives left"
                     } else {
-                        "Congrats!"
+                        "Congrats! You won!"
                     },
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,

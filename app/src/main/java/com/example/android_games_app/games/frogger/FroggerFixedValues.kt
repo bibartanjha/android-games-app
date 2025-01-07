@@ -20,7 +20,7 @@ object FroggerFixedValues {
     const val frogAnimCounterInterval: Int = 10
 
     const val numFrogHomes: Int = 5
-
+    const val numLivesDefault: Int = 3
 
     val gameRows: List<GameRow> = listOf(
         GameRow(
