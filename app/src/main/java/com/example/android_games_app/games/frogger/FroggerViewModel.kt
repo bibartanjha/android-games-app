@@ -293,10 +293,10 @@ class FroggerViewModel: ViewModel() {
                         }
                     }
 
-                    val gameProgressStatus = if (!anyEmptyHomes) {
-                        GameProgressStatus.WON
-                    } else {
+                    val gameProgressStatus = if (anyEmptyHomes) {
                         froggerGameState.value.gameProgressStatus
+                    } else {
+                        GameProgressStatus.WON
                     }
 
                     froggerGameState.value = froggerGameState.value.copy(
