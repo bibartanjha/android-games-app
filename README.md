@@ -1,4 +1,4 @@
-# android-games-app
+# Games by Bib
 
 This app is written in Jetpack compose. Still in-progress
 
