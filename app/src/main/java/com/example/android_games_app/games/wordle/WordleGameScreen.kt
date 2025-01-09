@@ -1,6 +1,10 @@
 package com.example.android_games_app.games.wordle
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -17,11 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.R
 import com.example.android_games_app.games.wordle.utils.LetterGuessTextView
 import com.example.android_games_app.games.wordle.utils.TextInputButton
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.BUTTON_COLOR
 import com.example.android_games_app.utils.TopBarWithBackIcon
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.KEYBOARD_ROWS
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LETTERS_IN_WORD
@@ -90,9 +99,9 @@ fun WordleGameScreen(
                         val specialButtonFontSize = (screenWidth/25.68).sp
                         if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add BACK button to last row
                             TextInputButton(
-                                textInButton = "BACK",
+                                textInButton = "ENTER",
                                 buttonClicked = {
-                                    wordleGameViewModel.removeLetter()
+                                    wordleGameViewModel.handleEnter()
                                 },
                                 buttonWidth = specialButtonDimension,
                                 buttonHeight = specialButtonDimension,
@@ -112,16 +121,26 @@ fun WordleGameScreen(
                             )
                         }
 
-                        if (keyboardRow == KEYBOARD_ROWS.size - 1) { // add ENTER button to last row
-                            TextInputButton(
-                                textInButton = "ENTER",
-                                buttonClicked = {
-                                    wordleGameViewModel.handleEnter()
-                                },
-                                buttonWidth = specialButtonDimension,
-                                buttonHeight = specialButtonDimension,
-                                fontSize = specialButtonFontSize
-                            )
+                        if (keyboardRow == KEYBOARD_ROWS.size - 1) {
+                            Box(
+                                modifier = Modifier
+                                    .width(specialButtonDimension)
+                                    .height(specialButtonDimension)
+                                    .background(
+                                        color = BUTTON_COLOR,
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable {
+                                        wordleGameViewModel.removeLetter()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.keyboard_back_button),
+                                    modifier = Modifier.fillMaxSize(0.75f),
+                                    contentDescription = null
+                                )
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))

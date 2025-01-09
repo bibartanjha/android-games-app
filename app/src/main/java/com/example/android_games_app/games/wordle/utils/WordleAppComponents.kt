@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.games.wordle.utils.WordleFixedValues.BUTTON_COLOR
 
 
 @Composable
@@ -54,7 +55,7 @@ fun LetterGuessTextViewPreview() {
 
 @Composable
 fun TextInputButton(
-    backgroundColor: Color = Color(red = 233, green = 218, blue = 193),
+    backgroundColor: Color = BUTTON_COLOR,
     buttonClicked: (buttonText: String) -> Unit,
     textInButton: String = "A",
     buttonWidth: Dp = 32.dp,
