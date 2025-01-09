@@ -34,19 +34,7 @@ fun HomeScreen(
         ) {
             val configuration = LocalConfiguration.current
             val screenWidth = configuration.screenWidthDp
-            val screenHeight = configuration.screenHeightDp
 
-            val headerWidth = screenWidth / 1.37
-            val headerHeight = screenHeight / 16.8
-            val headerTextSize = (headerWidth/12.5)
-            BaseCard(
-                textValue = "Select Game",
-                cardWidth = headerWidth.dp,
-                cardHeight = headerHeight.dp,
-                backgroundColor = Color.DarkGray,
-                textColor = Color.White,
-                textSize = headerTextSize.sp
-            )
             val optionCardWidth = screenWidth / 3
 
             val gameOptions = listOf(
