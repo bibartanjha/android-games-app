@@ -1,7 +1,6 @@
 package com.example.android_games_app.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,7 +13,6 @@ import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGame
 import com.example.android_games_app.games.wordle.WordleGameScreen
 import com.example.android_games_app.games.wordle.WordleGameViewModel
 import com.example.android_games_app.homescreen.HomeScreen
-import com.example.android_games_app.utils.GameProgressStatus
 
 @Composable
 fun GamesNavigationGraph(
@@ -27,6 +25,10 @@ fun GamesNavigationGraph(
     NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
         composable(Routes.HOME_SCREEN) {
             HomeScreen(
+                wordleGameViewModel = wordleGameViewModel,
+                snakeGameViewModel = snakeGameViewModel,
+                twentyFortyEightGameViewModel = twentyFortyEightGameViewModel,
+                froggerViewModel = froggerViewModel,
                 onOptionSelected = {
                     navController.navigate(it)
                 }
@@ -34,16 +36,6 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.WORDLE_SCREEN) {
-            LaunchedEffect(Unit) {
-                if (wordleGameViewModel.getWordleGameState.value.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
-                    /**
-                    If the user is in the middle of the game and went back to the main menu,
-                    and then clicks back on Wordle, then we don't want to start a new game
-                     Instead, we want the previous game state to be kept. That is why I added this if-check
-                     */
-                    wordleGameViewModel.startNewGame()
-                }
-            }
             WordleGameScreen(
                 wordleGameViewModel = wordleGameViewModel,
                 onNavigateToOtherScreen = {
@@ -53,17 +45,6 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.SNAKE_SCREEN) {
-            LaunchedEffect(Unit) {
-                if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus !in listOf(
-                        GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
-                    /**
-                    If the user is in the middle of the game and went back to the main menu,
-                    and then clicks back on Snake, then we don't want to start a new game
-                    Instead, we want the previous game state to be kept. That is why I added this if-check
-                     */
-                    snakeGameViewModel.startNewGame()
-                }
-            }
             SnakeGameScreen(
                 snakeGameViewModel = snakeGameViewModel,
                 onNavigateToOtherScreen = {
@@ -73,9 +54,6 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.TWENTYFORTYEIGHT_SCREEN) {
-            LaunchedEffect(Unit) {
-                twentyFortyEightGameViewModel.startNewGame()
-            }
             TwentyFortyEightGameScreen(
                 twentyFortyEightGameViewModel = twentyFortyEightGameViewModel,
                 onNavigateToOtherScreen = {
@@ -85,12 +63,6 @@ fun GamesNavigationGraph(
         }
 
         composable(Routes.FROGGER_SCREEN) {
-            LaunchedEffect(Unit) {
-                if (froggerViewModel.getFroggerGameState.value.gameProgressStatus !in listOf(
-                        GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
-                    froggerViewModel.startNewGame()
-                }
-            }
             FroggerScreen (
                 froggerViewModel = froggerViewModel,
                 onNavigateToOtherScreen = {
@@ -99,5 +71,4 @@ fun GamesNavigationGraph(
             )
         }
     }
-
 }

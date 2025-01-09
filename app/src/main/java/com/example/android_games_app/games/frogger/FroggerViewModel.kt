@@ -48,7 +48,7 @@ class FroggerViewModel: ViewModel() {
     private fun observeIsPausedState() {
         viewModelScope.launch {
             getFroggerGameState.collect { state ->
-                if (state.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
+                if (state.gameProgressStatus == GameProgressStatus.IN_PROGRESS && state.valuesBasedOnScreenSizeAreSet) {
                     startGameLoop()
                 } else {
                     stopGameLoop()
@@ -355,7 +355,6 @@ class FroggerViewModel: ViewModel() {
         screenWidth: Float,
         screenHeight: Float
     ) {
-        // Frog homes:
         val homeBaseImageWidth = (screenWidth * .2).toFloat()
         val frogHomeStartOffsetInImage = (homeBaseImageWidth/12)
         val frogHomeEndOffsetInImage = homeBaseImageWidth * (46f/76f)
@@ -364,8 +363,6 @@ class FroggerViewModel: ViewModel() {
             frogHomesStartIndices[i] = (homeBaseImageWidth * i) + frogHomeStartOffsetInImage
         }
 
-
-        // Horizontal measurements/bounds
         leftMostBoundForRowObject = -(screenWidth * 0.5f)
         rightMostBoundForRowObject = screenWidth * 1.5f
         frogWidth = reduceFloatDigits(
@@ -375,7 +372,6 @@ class FroggerViewModel: ViewModel() {
         leftMostBoundForFrog = (-1) * frogWidth
         rightMostBoundForFrog = screenWidth + frogWidth
 
-        // Vertical measurements/bounds
         rowHeight = screenHeight * rowAmountOfScreen
 
         var yOffsetValue = (screenHeight * topBarAmountOfScreen) + (screenHeight * frogHomesAmountOfScreenHeight)
@@ -388,63 +384,22 @@ class FroggerViewModel: ViewModel() {
 
         // X-coordinate values road and river objects
         val newOffsets: List<List<Float>> = listOf(
-            listOf(
-                0f,
-                (screenWidth/2),
-                screenWidth
-            ), // river row 1
-            listOf(
-                (-2) * (screenWidth/10),
-                2 * (screenWidth/10),
-                (6) *(screenWidth/10),
-                screenWidth
-            ), // river row 2
-            listOf(
-                0f,
-                (8) *(screenWidth/10)
-            ), // river row 3
-            listOf(
-                (-1)*(screenWidth/4),
-                (screenWidth/4),
-                screenWidth * (5/4)
-            ), // river row 4
-            listOf(
-                0f,
-                4 * (screenWidth/10),
-                (8) *(screenWidth/10),
-                (12) * (screenWidth/10)
-            ), // river row 5
+            listOf(0f, (screenWidth/2), screenWidth), // river row 1
+            listOf((-2) * (screenWidth/10), 2 * (screenWidth/10), (6) *(screenWidth/10), screenWidth), // river row 2
+            listOf(0f, (8) *(screenWidth/10)), // river row 3
+            listOf((-1)*(screenWidth/4), (screenWidth/4), screenWidth * (5/4)), // river row 4
+            listOf(0f, 4 * (screenWidth/10), (8) *(screenWidth/10), (12) * (screenWidth/10)), // river row 5
             emptyList(), // safe zone
-            listOf(
-                (-1)*(screenWidth/10),
-                (4)*(screenWidth/10)
-            ), // road row 1
-            listOf(
-                (-1)*(screenWidth/2),
-                (-1)*(screenWidth/5),
-                (1) *(screenWidth/10),
-                (3) * (screenWidth/10)
-            ), // road row 2
-            listOf(
-                (-2)*(screenWidth/10),
-                (1)*(screenWidth/20),
-                (4)*(screenWidth/10)
-            ), // road row 3
-            listOf(
-                (-1)*(screenWidth/2),
-                (-1)*(screenWidth/6),
-                (screenWidth/6),
-                (screenWidth/2)
-            ), // road row 4
-            listOf(
-                (-1)*(screenWidth/4),
-                (screenWidth/4),
-                screenWidth * (5/4)
-            ), // road row 5
+            listOf((-1)*(screenWidth/10), (4)*(screenWidth/10)), // road row 1
+            listOf((-1)*(screenWidth/2), (-1)*(screenWidth/5), (1) *(screenWidth/10), (3) * (screenWidth/10)), // road row 2
+            listOf((-2)*(screenWidth/10), (1)*(screenWidth/20), (4)*(screenWidth/10)), // road row 3
+            listOf((-1)*(screenWidth/2), (-1)*(screenWidth/6), (screenWidth/6), (screenWidth/2)), // road row 4
+            listOf((-1)*(screenWidth/4), (screenWidth/4), screenWidth * (5/4)), // road row 5
             emptyList() // safe zone
         )
 
         froggerGameState.value = froggerGameState.value.copy(
+            valuesBasedOnScreenSizeAreSet = true,
             objectXOffsets = newOffsets,
         )
     }

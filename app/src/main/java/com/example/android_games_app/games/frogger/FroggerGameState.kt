@@ -9,6 +9,7 @@ import com.example.android_games_app.utils.GameProgressStatus
 
 data class FroggerGameState (
     val gameProgressStatus: GameProgressStatus = GameProgressStatus.NOT_STARTED,
+    val valuesBasedOnScreenSizeAreSet: Boolean = false,
     val frogXOffset: Float = defaultFrogXOffset,
     val frogCurrentRowIndex: Int = FroggerFixedValues.gameRows.size - 1,
     val frogDisplayStatus: Frog.FrogDisplayStatus = Frog.FrogDisplayStatus.POINTING_UP,

@@ -12,14 +12,21 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.android_games_app.R
+import com.example.android_games_app.games.frogger.FroggerViewModel
+import com.example.android_games_app.games.snake.SnakeGameViewModel
+import com.example.android_games_app.games.twentyfortyeight.TwentyFortyEightGameViewModel
+import com.example.android_games_app.games.wordle.WordleGameViewModel
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.BaseCard
+import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.ImageCard
 
 @Composable
 fun HomeScreen(
+    wordleGameViewModel: WordleGameViewModel,
+    snakeGameViewModel: SnakeGameViewModel,
+    twentyFortyEightGameViewModel: TwentyFortyEightGameViewModel,
+    froggerViewModel: FroggerViewModel,
     onOptionSelected: (optionName: String) -> Unit
 ) {
     Surface(
@@ -37,23 +44,56 @@ fun HomeScreen(
 
             val optionCardWidth = screenWidth / 3
 
-            val gameOptions = listOf(
-                painterResource(R.drawable.wordle) to Routes.WORDLE_SCREEN,
-                painterResource(R.drawable.snake) to Routes.SNAKE_SCREEN,
-                painterResource(R.drawable.twentyfortyeight) to Routes.TWENTYFORTYEIGHT_SCREEN,
-                painterResource(R.drawable.frogger_game_logo) to Routes.FROGGER_SCREEN,
+            ImageCard(
+                cardWidth = optionCardWidth.dp,
+                cardHeight = optionCardWidth.dp,
+                painter = painterResource(R.drawable.wordle),
+                onBaseCardClicked = {
+                    if (wordleGameViewModel.getWordleGameState.value.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+                        wordleGameViewModel.startNewGame()
+                    }
+                    onOptionSelected(Routes.WORDLE_SCREEN)
+                }
             )
 
-            for (option in gameOptions) {
-                ImageCard(
-                    cardWidth = optionCardWidth.dp,
-                    cardHeight = optionCardWidth.dp,
-                    painter = option.first,
-                    onBaseCardClicked = {
-                        onOptionSelected(option.second)
+            ImageCard(
+                cardWidth = optionCardWidth.dp,
+                cardHeight = optionCardWidth.dp,
+                painter = painterResource(R.drawable.snake),
+                onBaseCardClicked = {
+                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus !in listOf(
+                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                        snakeGameViewModel.startNewGame()
                     }
-                )
-            }
+                    onOptionSelected(Routes.SNAKE_SCREEN)
+                }
+            )
+
+            ImageCard(
+                cardWidth = optionCardWidth.dp,
+                cardHeight = optionCardWidth.dp,
+                painter = painterResource(R.drawable.twentyfortyeight),
+                onBaseCardClicked = {
+                    if (twentyFortyEightGameViewModel.getGameState.value.gameProgressStatus !in listOf(
+                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                        twentyFortyEightGameViewModel.startNewGame()
+                    }
+                    onOptionSelected(Routes.TWENTYFORTYEIGHT_SCREEN)
+                }
+            )
+
+            ImageCard(
+                cardWidth = optionCardWidth.dp,
+                cardHeight = optionCardWidth.dp,
+                painter = painterResource(R.drawable.frogger_game_logo),
+                onBaseCardClicked = {
+                    if (froggerViewModel.getFroggerGameState.value.gameProgressStatus !in listOf(
+                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                        froggerViewModel.startNewGame()
+                    }
+                    onOptionSelected(Routes.FROGGER_SCREEN)
+                }
+            )
         }
     }
 }
@@ -61,5 +101,11 @@ fun HomeScreen(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(onOptionSelected = {})
+    HomeScreen(
+        wordleGameViewModel = WordleGameViewModel(),
+        snakeGameViewModel = SnakeGameViewModel(),
+        twentyFortyEightGameViewModel = TwentyFortyEightGameViewModel(),
+        froggerViewModel = FroggerViewModel(),
+        onOptionSelected = {}
+    )
 }
