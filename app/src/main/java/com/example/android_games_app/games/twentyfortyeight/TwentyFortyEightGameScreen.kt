@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -72,17 +73,30 @@ fun TwentyFortyEightGameScreen(
             val screenWidth = configuration.screenWidthDp
             val dimensionGridCell = (screenWidth/4.5).toFloat()
 
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
+
+                Row(
+                    modifier = Modifier.align(Alignment.TopCenter)
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            twentyFortyEightGameViewModel.pauseGame()
+                        },
+                    ) {
+                        Text("Restart")
+                    }
+                }
 
                 var totalDragX = 0f
                 var totalDragY = 0f
 
                 Box(
                     Modifier
+                        .align(Alignment.Center)
                         .padding(8.dp)
                         .background(
                             color = Color.DarkGray,
@@ -229,8 +243,21 @@ fun TwentyFortyEightGameScreen(
                 )
             }
 
-
-
+            if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
+                GamePauseOrCompleteScreen(
+                    text = "Are you sure you want to restart the game?",
+                    cardBGColor = Color.LightGray,
+                    textColor = Color.Black,
+                    buttonTexts = listOf("Restart", "Cancel"),
+                    onButtonSelection = {
+                        if (it == "Restart") {
+                            twentyFortyEightGameViewModel.startNewGame()
+                        } else if (it == "Cancel") {
+                            twentyFortyEightGameViewModel.resumeGame()
+                        }
+                    }
+                )
+            }
         }
     }
 }

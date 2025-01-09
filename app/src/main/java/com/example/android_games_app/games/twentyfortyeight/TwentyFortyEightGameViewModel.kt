@@ -17,6 +17,9 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
     fun userMove(direction: SwipeDirection) {
         val gameStateValue = gameState.value
+        if (gameStateValue.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+            return
+        }
 
         val updatedGrid = when (direction) {
             SwipeDirection.LEFT -> GridFunctions.shiftGridLeft(gameStateValue.gameGrid)
@@ -25,10 +28,6 @@ class TwentyFortyEightGameViewModel: ViewModel() {
             SwipeDirection.DOWN -> GridFunctions.shiftGridDown(gameStateValue.gameGrid)
             SwipeDirection.NONE -> gameStateValue.gameGrid
         }
-
-//        for (row in updatedGrid) {
-//            Log.d("2048 Log", "--- UpdatedGrid: $updatedGrid")
-//        }
 
         var updatedGameStatus = gameStateValue.gameProgressStatus
 
@@ -119,6 +118,18 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         gameState.value = gameState.value.copy(
             gameGrid = newGrid,
             gameProgressStatus = GameProgressStatus.IN_PROGRESS
+        )
+    }
+
+    fun resumeGame() {
+        gameState.value = gameState.value.copy(
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
+        )
+    }
+
+    fun pauseGame() {
+        gameState.value = gameState.value.copy(
+            gameProgressStatus = GameProgressStatus.PAUSED
         )
     }
 
