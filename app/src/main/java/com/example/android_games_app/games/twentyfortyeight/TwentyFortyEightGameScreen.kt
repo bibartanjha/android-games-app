@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,7 +85,11 @@ fun TwentyFortyEightGameScreen(
                     Button(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
-                            twentyFortyEightGameViewModel.pauseGame()
+                            if (gameState.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
+                                twentyFortyEightGameViewModel.pauseGame()
+                            } else {
+                                twentyFortyEightGameViewModel.startNewGame()
+                            }
                         },
                     ) {
                         Text("Restart")
@@ -134,7 +139,6 @@ fun TwentyFortyEightGameScreen(
                             )
                         }
                 ) {
-
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -221,26 +225,31 @@ fun TwentyFortyEightGameScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
-                }
-            }
-            if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
-                GamePauseOrCompleteScreen(
-                    text = if (gameState.gameProgressStatus == GameProgressStatus.WON) {
-                        "Congrats!"
-                    } else {
-                        "No possible moves left"
-                    },
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
-                    buttonTexts = listOf("Start New Round", "Return to Main Menu"),
-                    onButtonSelection = {
-                        if (it == "Start New Round") {
-                            twentyFortyEightGameViewModel.startNewGame()
-                        } else if (it == "Return to Main Menu") {
-                            onNavigateToOtherScreen(Routes.HOME_SCREEN)
+
+                    val overlayHeight = (4 * 5) + (dimensionGridCell * 4)
+
+                    if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
+                        Box(
+                            modifier = Modifier
+                                .height(overlayHeight.dp)
+                                .fillMaxWidth()
+                                .background(
+                                    color = Color.Yellow.copy(
+                                        alpha = 0.5f
+                                    ),
+                                    shape = RoundedCornerShape(6.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else "Game Over",
+                                color = Color.White,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
-                )
+                }
             }
 
             if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
