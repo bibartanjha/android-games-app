@@ -38,7 +38,7 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
         for (row in updatedGrid.indices) {
             for (col in updatedGrid[row].indices) {
-                if (updatedGrid[row][col] != gameStateValue.gameGrid[row][col]) {
+                if (updatedGrid[row][col].value != gameStateValue.gameGrid[row][col].value) {
                     gridIsSame = false
                 }
                 updatedGrid[row][col].isNewTile = false
@@ -51,12 +51,12 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
                 if (!containsAdjacentTilesWithEqualValue) { // note to self: adding this check because if it is already true, then no need to check any more
                     if ((row + 1) < updatedGrid.size) {
-                        if (updatedGrid[row][col] == updatedGrid[row + 1][col]) {
+                        if (updatedGrid[row][col].value == updatedGrid[row + 1][col].value) {
                             containsAdjacentTilesWithEqualValue = true
                         }
                     }
                     if ((col + 1) < updatedGrid[row].size) {
-                        if (updatedGrid[row][col] == updatedGrid[row][col + 1]) {
+                        if (updatedGrid[row][col].value == updatedGrid[row][col + 1].value) {
                             containsAdjacentTilesWithEqualValue = true
                         }
                     }
@@ -73,30 +73,32 @@ class TwentyFortyEightGameViewModel: ViewModel() {
                 val randomTile = tilesWithZero.random()
                 val row = randomTile.first
                 val col = randomTile.second
+                val newValue = 2
                 updatedGrid[row][col] = GridTile(
-                    value = 2,
+                    value = newValue,
                     isNewTile = true
                 )
 
-                // Note to self: Checking if after adding this new tile, is the game over
-                if (tilesWithZero.size == 1) { // this means that the new tile took up the last spot
-                    val adjacentValues: MutableList<Int> = mutableListOf()
+                if (!containsAdjacentTilesWithEqualValue) { // if it already contains two adjacent tiles, then we don't need to do this check
+                    if (tilesWithZero.size == 1) { // this means that the new tile took up the last spot
+                        var newTileHasAdjacentEqualTile = false
 
-                    if (row > 0) {
-                        adjacentValues.add(updatedGrid[row - 1][col].value)
-                    }
-                    if (row < (updatedGrid.size - 1)) {
-                        adjacentValues.add(updatedGrid[row + 1][col].value)
-                    }
-                    if (col > 0) {
-                        adjacentValues.add(updatedGrid[row][col - 1].value)
-                    }
-                    if (col < (updatedGrid[row].size - 1)) {
-                        adjacentValues.add(updatedGrid[row][col + 1].value)
-                    }
+                        if ((row > 0) && (updatedGrid[row - 1][col].value == newValue)) {
+                            newTileHasAdjacentEqualTile = true
+                        }
+                        else if ((row < (updatedGrid.size - 1)) && (updatedGrid[row + 1][col].value == newValue)) {
+                            newTileHasAdjacentEqualTile = true
+                        }
+                        else if ((col > 0) && (updatedGrid[row][col - 1].value == newValue)) {
+                            newTileHasAdjacentEqualTile = true
+                        }
+                        if ((col < (updatedGrid[row].size - 1)) && (updatedGrid[row][col + 1].value == newValue)) {
+                            newTileHasAdjacentEqualTile = true
+                        }
 
-                    if (!adjacentValues.contains(2)) {
-                        updatedGameStatus = GameProgressStatus.LOST
+                        if (!newTileHasAdjacentEqualTile) {
+                            updatedGameStatus = GameProgressStatus.LOST
+                        }
                     }
                 }
             }
