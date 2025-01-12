@@ -49,7 +49,7 @@ fun HomeScreen(
                 cardHeight = optionCardWidth.dp,
                 painter = painterResource(R.drawable.wordle),
                 onBaseCardClicked = {
-                    if (wordleGameViewModel.getWordleGameState.value.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
+                    if (wordleGameViewModel.getWordleGameState.value.gameProgressStatus == GameProgressStatus.NOT_STARTED) {
                         wordleGameViewModel.startNewGame()
                     }
                     onOptionSelected(Routes.WORDLE_SCREEN)
@@ -61,8 +61,7 @@ fun HomeScreen(
                 cardHeight = optionCardWidth.dp,
                 painter = painterResource(R.drawable.snake),
                 onBaseCardClicked = {
-                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus !in listOf(
-                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                    if (snakeGameViewModel.getSnakeGameState.value.gameProgressStatus == GameProgressStatus.NOT_STARTED) {
                         snakeGameViewModel.startNewGame()
                     }
                     onOptionSelected(Routes.SNAKE_SCREEN)
@@ -74,8 +73,7 @@ fun HomeScreen(
                 cardHeight = optionCardWidth.dp,
                 painter = painterResource(R.drawable.twentyfortyeight),
                 onBaseCardClicked = {
-                    if (twentyFortyEightGameViewModel.getGameState.value.gameProgressStatus !in listOf(
-                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                    if (twentyFortyEightGameViewModel.getTwentyFortyEightGameState.value.gameProgressStatus == GameProgressStatus.NOT_STARTED) {
                         twentyFortyEightGameViewModel.startNewGame()
                     }
                     onOptionSelected(Routes.TWENTYFORTYEIGHT_SCREEN)
@@ -87,8 +85,7 @@ fun HomeScreen(
                 cardHeight = optionCardWidth.dp,
                 painter = painterResource(R.drawable.frogger_game_logo),
                 onBaseCardClicked = {
-                    if (froggerViewModel.getFroggerGameState.value.gameProgressStatus !in listOf(
-                            GameProgressStatus.IN_PROGRESS, GameProgressStatus.PAUSED)) {
+                    if (froggerViewModel.getFroggerGameState.value.gameProgressStatus == GameProgressStatus.NOT_STARTED) {
                         froggerViewModel.startNewGame()
                     }
                     onOptionSelected(Routes.FROGGER_SCREEN)
