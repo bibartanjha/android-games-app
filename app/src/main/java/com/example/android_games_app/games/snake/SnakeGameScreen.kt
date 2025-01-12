@@ -11,12 +11,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,8 +41,10 @@ import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.SNAKE_GAME_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.DirectionButtons
-import com.example.android_games_app.utils.OverlayMenuScreen
+import com.example.android_games_app.utils.OverlayMenuScreenWithButtons
 import com.example.android_games_app.utils.GameProgressStatus
+import com.example.android_games_app.utils.OverlayScreen
+import com.example.android_games_app.utils.PopUpScreen
 import com.example.android_games_app.utils.TopBarWithBackIcon
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -65,19 +74,22 @@ fun SnakeGameScreen(
                 .padding(paddingValues),
             color = SNAKE_GAME_SCREEN_BG_COLOR
         ) {
+            val configuration = LocalConfiguration.current
+            val screenWidth = configuration.screenWidthDp
+            val screenHeight = configuration.screenHeightDp
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp
-                val screenHeight = configuration.screenHeightDp
-
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Row (
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Button(onClick = { snakeGameViewModel.showCustomizationScreen() }) {
+                        Text("Customize")
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = { snakeGameViewModel.pauseGame() }
@@ -106,17 +118,19 @@ fun SnakeGameScreen(
 
                     val startOfGameBoard = heightOfScoreRow + verticalMargin
 
-                    for (row in 0 until NUM_GRID_ROWS) {
-                        for (col in 0 until NUM_GRID_COLS) {
-                            drawRect(
-                                color = Color.Gray,
-                                size = androidx.compose.ui.geometry.Size(dimensionGridCell, dimensionGridCell),
-                                topLeft = androidx.compose.ui.geometry.Offset(
-                                    horizontalMarginAroundGameBoard + (col * dimensionGridCell),
-                                    startOfGameBoard + (row * dimensionGridCell)
-                                ),
-                                style = Stroke(width = 1.dp.toPx())
-                            )
+                    if (gameState.showGridLines) {
+                        for (row in 0 until NUM_GRID_ROWS) {
+                            for (col in 0 until NUM_GRID_COLS) {
+                                drawRect(
+                                    color = Color.Gray,
+                                    size = androidx.compose.ui.geometry.Size(dimensionGridCell, dimensionGridCell),
+                                    topLeft = androidx.compose.ui.geometry.Offset(
+                                        horizontalMarginAroundGameBoard + (col * dimensionGridCell),
+                                        startOfGameBoard + (row * dimensionGridCell)
+                                    ),
+                                    style = Stroke(width = 1.dp.toPx())
+                                )
+                            }
                         }
                     }
 
@@ -197,10 +211,8 @@ fun SnakeGameScreen(
                 )
             }
             if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
-                OverlayMenuScreen(
+                OverlayMenuScreenWithButtons(
                     text = "Game Paused",
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
                     buttonTexts = listOf("Resume", "Restart"),
                     onButtonSelection = {
                         if (it == "Resume") {
@@ -211,25 +223,59 @@ fun SnakeGameScreen(
                     }
                 )
             } else if (gameState.gameProgressStatus == GameProgressStatus.SHOWING_CUSTOMIZATION_SCREEN) {
-                OverlayMenuScreen(
-                    text = "Game Paused",
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
-                    buttonTexts = listOf("Resume", "Restart"),
-                    onButtonSelection = {
-                        if (it == "Resume") {
+                OverlayScreen(
+                    screenColor = Color.Black,
+                    screenWidth = screenWidth.dp,
+                    screenHeight = screenHeight.dp
+                )
+                PopUpScreen("Customize") {
+                    var showGridLinesChecked by remember { mutableStateOf(gameState.showGridLines) }
+                    var snakeSpeedSliderValue by remember { mutableIntStateOf(gameState.delayIntervalIndex) }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Show Grid Lines:")
+                        Spacer(modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = showGridLinesChecked,
+                            onCheckedChange = { showGridLinesChecked = it }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Snake Speed:")
+                        Spacer(modifier = Modifier.weight(1f))
+                        Slider(
+                            value = snakeSpeedSliderValue.toFloat(),
+                            onValueChange = { snakeSpeedSliderValue = it.toInt() },
+                            steps = 3,
+                            valueRange = 0f..4f
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Button(onClick = {
+                            snakeGameViewModel.setCustomizableFeatures(showGridLinesChecked, snakeSpeedSliderValue)
                             snakeGameViewModel.resumeGame()
-                        } else if (it == "Restart") {
-                            snakeGameViewModel.startNewGame()
+                        }) {
+                            Text("Submit")
                         }
                     }
-                )
+
+                }
             } else if (gameState.gameProgressStatus in listOf(GameProgressStatus.LOST, GameProgressStatus.WON)) {
-                OverlayMenuScreen(
+                OverlayMenuScreenWithButtons(
                     text = "Game Over!",
                     subTexts = listOf("You scored ${gameState.currentScore} points"),
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
                     buttonTexts = listOf("Start New Round", "Return to Main Menu"),
                     onButtonSelection = {
                         if (it == "Start New Round") {

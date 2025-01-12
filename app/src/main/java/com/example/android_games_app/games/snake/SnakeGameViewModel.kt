@@ -8,6 +8,7 @@ import com.example.android_games_app.games.snake.utils.SnakeDirectionMaps
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_COLS
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID_ROWS
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.POINT_INCREMENT_VALUE
+import com.example.android_games_app.games.snake.utils.SnakeFixedValues.delayIntervals
 import com.example.android_games_app.utils.GameProgressStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -44,7 +45,10 @@ class SnakeGameViewModel: ViewModel() {
 
         job = viewModelScope.launch {
             while (snakeGameState.value.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
-                delay(200)
+                delay(delayIntervals[snakeGameState.value.delayIntervalIndex])
+                if (snakeGameState.value.currentSnakeDirection == SnakeDirection.NONE) {
+                    continue
+                }
                 val updatedSnakeCoordinates = snakeGameState.value.snakeCoordinates.toMutableList()
                 val head: PointOnGameBoard = updatedSnakeCoordinates[0]
                 when (snakeGameState.value.currentSnakeDirection) {
@@ -149,6 +153,22 @@ class SnakeGameViewModel: ViewModel() {
         )
     }
 
+    fun setCustomizableFeatures(
+        showGridLines: Boolean,
+        delayIntervalIndex: Int
+    ) {
+        snakeGameState.value = snakeGameState.value.copy(
+            showGridLines = showGridLines,
+            delayIntervalIndex = delayIntervalIndex
+        )
+    }
+
+    fun showCustomizationScreen() {
+        snakeGameState.value = snakeGameState.value.copy(
+            gameProgressStatus = GameProgressStatus.SHOWING_CUSTOMIZATION_SCREEN
+        )
+    }
+
     fun pauseGame() {
         snakeGameState.value = snakeGameState.value.copy(
             gameProgressStatus = GameProgressStatus.PAUSED
@@ -170,7 +190,7 @@ class SnakeGameViewModel: ViewModel() {
             snakeFoodCoordinates = PointOnGameBoard(Random.nextInt(NUM_GRID_ROWS), Random.nextInt(NUM_GRID_COLS)),
             currentSnakeDirection = SnakeDirection.NONE,
             currentScore = 100,
-            gameProgressStatus = GameProgressStatus.NOT_STARTED
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
 }

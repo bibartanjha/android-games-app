@@ -181,7 +181,7 @@ class WordleGameViewModel : ViewModel() {
 
     fun restartPressed() {
         wordleGameState.value = wordleGameState.value.copy(
-            gameProgressStatus = GameProgressStatus.RESTART_PRESSED
+            gameProgressStatus = GameProgressStatus.SHOWING_RESTART_SCREEN
         )
     }
 }

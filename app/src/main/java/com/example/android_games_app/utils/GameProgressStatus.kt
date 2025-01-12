@@ -6,5 +6,6 @@ enum class GameProgressStatus {
     PAUSED,
     WON,
     LOST,
-    RESTART_PRESSED
+    SHOWING_RESTART_SCREEN,
+    SHOWING_CUSTOMIZATION_SCREEN
 }

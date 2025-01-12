@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -134,12 +135,12 @@ fun ImageCardPreview() {
 }
 
 @Composable
-fun OverlayMenuScreen(
-    text: String,
+fun OverlayMenuScreenWithButtons(
+    text: String = "Placeholder",
     subTexts: List<String> = emptyList(),
-    cardBGColor: Color,
-    textColor: Color,
-    buttonTexts: List<String>,
+    cardBGColor: Color = Color.LightGray,
+    textColor: Color = Color.Black,
+    buttonTexts: List<String> = emptyList(),
     onButtonSelection: (buttonText: String) -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -152,13 +153,19 @@ fun OverlayMenuScreen(
         screenHeight = screenHeight.dp
     )
 
-    Menu(text, subTexts, cardBGColor, textColor, buttonTexts, onButtonSelection)
+    PopUpScreen(text, subTexts, cardBGColor, textColor) {
+        for (buttonText in buttonTexts) {
+            Button(onClick = { onButtonSelection(buttonText) }) {
+                Text(buttonText)
+            }
+        }
+    }
 }
 
 @Preview
 @Composable
-fun OverlayMenuScreenPreview() {
-    OverlayMenuScreen(
+fun OverlayMenuScreenWithButtonsPreview() {
+    OverlayMenuScreenWithButtons(
         text = "Congrats on finishing the game!",
         subTexts = listOf("You scored 33 points", "Pick a next option"),
         cardBGColor = Color.Cyan,
@@ -212,13 +219,12 @@ fun OverlayScreenPreview() {
 }
 
 @Composable
-fun Menu(
+fun PopUpScreen(
     text: String,
     subTexts: List<String> = emptyList(),
-    cardBGColor: Color,
-    textColor: Color,
-    buttonTexts: List<String>,
-    onButtonSelection: (buttonText: String) -> Unit
+    cardBGColor: Color = Color.LightGray,
+    textColor: Color = Color.Black,
+    remainingPopUpScreenContent: @Composable ColumnScope.() -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -258,11 +264,7 @@ fun Menu(
                     )
                 }
                 Spacer(modifier = Modifier.height(15.dp))
-                for (buttonText in buttonTexts) {
-                    Button(onClick = { onButtonSelection(buttonText) }) {
-                        Text(buttonText)
-                    }
-                }
+                remainingPopUpScreenContent()
             }
         }
     }
@@ -270,14 +272,32 @@ fun Menu(
 
 @Preview
 @Composable
-fun MenuPreview() {
-    Menu(
-        text = "Menu",
+fun PopUpScreenPreview1() {
+    PopUpScreen(
+        text = "Some texts",
         cardBGColor = Color.Cyan,
-        textColor = Color.Black,
-        buttonTexts = listOf("Button1", "Button2"),
-        onButtonSelection = {}
-    )
+        textColor = Color.Black
+    ) {
+        Text(text = "hehehe")
+        Text(text = "lololol")
+    }
+}
+
+@Preview
+@Composable
+fun PopUpScreenPreview2() {
+    PopUpScreen(
+        text = "Buttons Menu",
+        cardBGColor = Color.Red,
+        textColor = Color.Black
+    ) {
+        Button(onClick = {}) {
+            Text(text = "Hihihi")
+        }
+        Button(onClick = {}) {
+            Text(text = "ByeByeBye")
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

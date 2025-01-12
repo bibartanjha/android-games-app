@@ -131,7 +131,7 @@ class TwentyFortyEightGameViewModel: ViewModel() {
 
     fun restartPressed() {
         twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
-            gameProgressStatus = GameProgressStatus.RESTART_PRESSED
+            gameProgressStatus = GameProgressStatus.SHOWING_RESTART_SCREEN
         )
     }
 

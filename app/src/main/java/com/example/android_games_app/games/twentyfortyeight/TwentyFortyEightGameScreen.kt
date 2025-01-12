@@ -41,7 +41,7 @@ import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.SC
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.games.twentyfortyeight.utils.TileFunctions
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.OverlayMenuScreen
+import com.example.android_games_app.utils.OverlayMenuScreenWithButtons
 import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.OverlayScreen
 import com.example.android_games_app.utils.TopBarWithBackIcon
@@ -243,11 +243,9 @@ fun TwentyFortyEightGameScreen(
                 }
             }
 
-            if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
-                OverlayMenuScreen(
+            if (gameState.gameProgressStatus == GameProgressStatus.SHOWING_RESTART_SCREEN) {
+                OverlayMenuScreenWithButtons(
                     text = "Are you sure you want to restart the game?",
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
                     buttonTexts = listOf("Restart", "Cancel"),
                     onButtonSelection = {
                         if (it == "Restart") {

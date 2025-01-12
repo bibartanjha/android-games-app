@@ -39,7 +39,7 @@ import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LE
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.WORDLE_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.OverlayMenuScreen
+import com.example.android_games_app.utils.OverlayMenuScreenWithButtons
 import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.OverlayScreen
 
@@ -191,11 +191,9 @@ fun WordleGameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
-            if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
-                OverlayMenuScreen(
+            if (gameState.gameProgressStatus == GameProgressStatus.SHOWING_RESTART_SCREEN) {
+                OverlayMenuScreenWithButtons(
                     text = "Are you sure you want to start a new game?",
-                    cardBGColor = Color.LightGray,
-                    textColor = Color.Black,
                     buttonTexts = listOf("Restart", "Cancel"),
                     onButtonSelection = {
                         if (it == "Restart") {

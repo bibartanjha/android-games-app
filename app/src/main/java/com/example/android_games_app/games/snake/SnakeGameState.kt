@@ -15,5 +15,7 @@ data class SnakeGameState(
         PointOnGameBoard(Random.nextInt(NUM_GRID_ROWS), Random.nextInt(NUM_GRID_COLS)),
     val currentSnakeDirection: SnakeDirection = SnakeDirection.NONE,
     val currentScore: Int = 100,
-    val gameProgressStatus: GameProgressStatus = GameProgressStatus.NOT_STARTED
+    val gameProgressStatus: GameProgressStatus = GameProgressStatus.NOT_STARTED,
+    val showGridLines: Boolean = true,
+    val delayIntervalIndex: Int = 2
 )
