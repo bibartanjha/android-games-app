@@ -172,4 +172,16 @@ class WordleGameViewModel : ViewModel() {
             gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
+
+    fun resumeGame() {
+        wordleGameState.value = wordleGameState.value.copy(
+            gameProgressStatus = GameProgressStatus.IN_PROGRESS
+        )
+    }
+
+    fun restartPressed() {
+        wordleGameState.value = wordleGameState.value.copy(
+            gameProgressStatus = GameProgressStatus.RESTART_PRESSED
+        )
+    }
 }

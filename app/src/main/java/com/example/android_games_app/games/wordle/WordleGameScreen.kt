@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,21 +75,75 @@ fun WordleGameScreen(
                 val screenWidth = configuration.screenWidthDp
                 val screenHeight = configuration.screenHeightDp
 
+                Row (
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(onClick = {
+                        if (gameState.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
+                            wordleGameViewModel.restartPressed()
+                        } else {
+                            wordleGameViewModel.startNewGame()
+                        }
+                    }) {
+                        Text("Start New Game")
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(10.dp))
-                for (row in 0 until NUM_POSSIBLE_GUESSES) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
-                    ) {
-                        for (col in 0 until NUM_LETTERS_IN_WORD) {
-                            LetterGuessTextView(
-                                backgroundColor = gameState.letterGuessValues[row][col].currentBGColor,
-                                letterInView = gameState.letterGuessValues[row][col].currentLetter,
-                                boxSize = (screenWidth/5.5).toInt()
-                            )
+
+                val horizontalSpacingBetweenLetters = 4
+                val boxSize = (screenWidth/6.5).toInt()
+                val verticalSpacingBetweenLetters = 8
+
+                Box {
+                    Column {
+                        for (row in 0 until NUM_POSSIBLE_GUESSES) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(horizontalSpacingBetweenLetters.dp, Alignment.CenterHorizontally)
+                            ) {
+                                for (col in 0 until NUM_LETTERS_IN_WORD) {
+                                    LetterGuessTextView(
+                                        backgroundColor = gameState.letterGuessValues[row][col].currentBGColor,
+                                        letterInView = gameState.letterGuessValues[row][col].currentLetter,
+                                        boxSize = boxSize
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(verticalSpacingBetweenLetters.dp))
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
+                        val overlayWidth = ((NUM_LETTERS_IN_WORD - 1) * horizontalSpacingBetweenLetters) + (NUM_LETTERS_IN_WORD * boxSize)
+                        val overlayHeight = ((NUM_POSSIBLE_GUESSES - 1) * verticalSpacingBetweenLetters) + (NUM_POSSIBLE_GUESSES * boxSize)
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(horizontalSpacingBetweenLetters.dp, Alignment.CenterHorizontally)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .width(overlayWidth.dp)
+                                    .height(overlayHeight.dp)
+                                    .background(
+                                        color = Color.Yellow.copy(
+                                            alpha = 0.5f
+                                        ),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else gameState.wordForUserToGuess,
+                                    color = Color.Black,
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -146,21 +203,17 @@ fun WordleGameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
-            if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
+            if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
                 GamePauseOrCompleteScreen(
-                    text = if (gameState.gameProgressStatus == GameProgressStatus.WON) {
-                        "Congrats!"
-                    } else {
-                        "The correct word was ${gameState.wordForUserToGuess}"
-                    },
+                    text = "Are you sure you want to start a new game?",
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,
-                    buttonTexts = listOf("Start New Round", "Return to Main Menu"),
+                    buttonTexts = listOf("Restart", "Cancel"),
                     onButtonSelection = {
-                        if (it == "Start New Round") {
+                        if (it == "Restart") {
                             wordleGameViewModel.startNewGame()
-                        } else if (it == "Return to Main Menu") {
-                            onNavigateToOtherScreen(Routes.HOME_SCREEN)
+                        } else if (it == "Cancel") {
+                            wordleGameViewModel.resumeGame()
                         }
                     }
                 )
