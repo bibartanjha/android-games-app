@@ -176,6 +176,8 @@ fun TwentyFortyEightGameScreen(
                                                 animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
                                             )
                                             twentyFortyEightGameViewModel.resetIsNewTile(row, col)
+                                        } else {
+                                            animatedScaleFactor.snapTo(1f)
                                         }
                                     }
 

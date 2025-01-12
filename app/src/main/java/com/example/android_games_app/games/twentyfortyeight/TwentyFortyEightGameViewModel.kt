@@ -21,12 +21,22 @@ class TwentyFortyEightGameViewModel: ViewModel() {
             return
         }
 
+        val grid = gameStateValue.gameGrid
+
+        // note to self: this is in case a user move happened in the middle of a tile animation. so need to reset
+        for (row in grid.indices) {
+            for (col in grid[row].indices) {
+                grid[row][col].isNewTile = false
+                grid[row][col].hadRecentMerge = false
+            }
+        }
+
         val updatedGrid = when (direction) {
-            SwipeDirection.LEFT -> GridFunctions.shiftGridLeft(gameStateValue.gameGrid)
-            SwipeDirection.RIGHT -> GridFunctions.shiftGridRight(gameStateValue.gameGrid)
-            SwipeDirection.UP -> GridFunctions.shiftGridUp(gameStateValue.gameGrid)
-            SwipeDirection.DOWN -> GridFunctions.shiftGridDown(gameStateValue.gameGrid)
-            SwipeDirection.NONE -> gameStateValue.gameGrid
+            SwipeDirection.LEFT -> GridFunctions.shiftGridLeft(grid)
+            SwipeDirection.RIGHT -> GridFunctions.shiftGridRight(grid)
+            SwipeDirection.UP -> GridFunctions.shiftGridUp(grid)
+            SwipeDirection.DOWN -> GridFunctions.shiftGridDown(grid)
+            SwipeDirection.NONE -> grid
         }
 
         var updatedGameStatus = gameStateValue.gameProgressStatus
