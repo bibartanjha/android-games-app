@@ -12,11 +12,11 @@ import kotlin.random.Random
 
 class TwentyFortyEightGameViewModel: ViewModel() {
 
-    private val gameState = MutableStateFlow(GameState())
-    val getGameState: StateFlow<GameState> = gameState
+    private val twentyFortyEightGameState = MutableStateFlow(TwentyFortyEightGameState())
+    val getTwentyFortyEightGameState: StateFlow<TwentyFortyEightGameState> = twentyFortyEightGameState
 
     fun userMove(direction: SwipeDirection) {
-        val gameStateValue = gameState.value
+        val gameStateValue = twentyFortyEightGameState.value
         if (gameStateValue.gameProgressStatus != GameProgressStatus.IN_PROGRESS) {
             return
         }
@@ -69,7 +69,7 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         } else {
             if (tilesWithZero.isEmpty() && (!containsAdjacentTilesWithEqualValue)) {
                 updatedGameStatus = GameProgressStatus.LOST
-            } else if (!gridIsSame) {
+            } else if ((!gridIsSame) && (tilesWithZero.isNotEmpty())) {
                 val randomTile = tilesWithZero.random()
                 val row = randomTile.first
                 val col = randomTile.second
@@ -104,7 +104,7 @@ class TwentyFortyEightGameViewModel: ViewModel() {
             }
         }
 
-        gameState.value = gameStateValue.copy(
+        twentyFortyEightGameState.value = gameStateValue.copy(
             gameGrid = updatedGrid,
             gameProgressStatus = updatedGameStatus
         )
@@ -117,36 +117,36 @@ class TwentyFortyEightGameViewModel: ViewModel() {
         newGrid[randomRow][randomCol] = GridTile(value = 2)
 
 
-        gameState.value = gameState.value.copy(
+        twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
             gameGrid = newGrid,
             gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
 
     fun resumeGame() {
-        gameState.value = gameState.value.copy(
+        twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
             gameProgressStatus = GameProgressStatus.IN_PROGRESS
         )
     }
 
-    fun pauseGame() {
-        gameState.value = gameState.value.copy(
-            gameProgressStatus = GameProgressStatus.PAUSED
+    fun restartPressed() {
+        twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
+            gameProgressStatus = GameProgressStatus.RESTART_PRESSED
         )
     }
 
     fun resetHadRecentMerge(row: Int, col: Int) {
-        val updatedGrid = gameState.value.gameGrid
+        val updatedGrid = twentyFortyEightGameState.value.gameGrid
         updatedGrid[row][col].hadRecentMerge = false
-        gameState.value = gameState.value.copy(
+        twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
             gameGrid = updatedGrid
         )
     }
 
     fun resetIsNewTile(row: Int, col: Int) {
-        val updatedGrid = gameState.value.gameGrid
+        val updatedGrid = twentyFortyEightGameState.value.gameGrid
         updatedGrid[row][col].isNewTile = false
-        gameState.value = gameState.value.copy(
+        twentyFortyEightGameState.value = twentyFortyEightGameState.value.copy(
             gameGrid = updatedGrid
         )
     }

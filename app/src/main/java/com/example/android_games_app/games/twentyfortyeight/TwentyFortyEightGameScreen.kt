@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.DIM_SIZE
 import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.SCREEN_BG_COLOR
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.games.twentyfortyeight.utils.TileFunctions
@@ -52,7 +53,7 @@ fun TwentyFortyEightGameScreen(
     twentyFortyEightGameViewModel: TwentyFortyEightGameViewModel,
     onNavigateToOtherScreen: (optionName: String) -> Unit
 ) {
-    val gameState by twentyFortyEightGameViewModel.getGameState.collectAsState()
+    val gameState by twentyFortyEightGameViewModel.getTwentyFortyEightGameState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -86,7 +87,7 @@ fun TwentyFortyEightGameScreen(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             if (gameState.gameProgressStatus == GameProgressStatus.IN_PROGRESS) {
-                                twentyFortyEightGameViewModel.pauseGame()
+                                twentyFortyEightGameViewModel.restartPressed()
                             } else {
                                 twentyFortyEightGameViewModel.startNewGame()
                             }
@@ -139,11 +140,12 @@ fun TwentyFortyEightGameScreen(
                             )
                         }
                 ) {
+                    val verticalMarginSize = 4
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(verticalMarginSize.dp))
                         for (row in gameState.gameGrid.indices) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -222,13 +224,13 @@ fun TwentyFortyEightGameScreen(
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(verticalMarginSize.dp))
                         }
                     }
 
-                    val overlayHeight = (4 * 5) + (dimensionGridCell * 4)
 
                     if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
+                        val overlayHeight = (verticalMarginSize * (DIM_SIZE + 1)) + (dimensionGridCell * DIM_SIZE)
                         Box(
                             modifier = Modifier
                                 .height(overlayHeight.dp)
@@ -243,7 +245,7 @@ fun TwentyFortyEightGameScreen(
                         ) {
                             Text(
                                 text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else "Game Over",
-                                color = Color.White,
+                                color = Color.Black,
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -252,7 +254,7 @@ fun TwentyFortyEightGameScreen(
                 }
             }
 
-            if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
+            if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
                 GamePauseOrCompleteScreen(
                     text = "Are you sure you want to restart the game?",
                     cardBGColor = Color.LightGray,
