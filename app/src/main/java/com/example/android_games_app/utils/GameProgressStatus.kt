@@ -5,5 +5,6 @@ enum class GameProgressStatus {
     IN_PROGRESS,
     PAUSED,
     WON,
-    LOST
+    LOST,
+    RESTART_PRESSED
 }
