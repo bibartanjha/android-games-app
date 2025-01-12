@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,8 +41,9 @@ import com.example.android_games_app.games.twentyfortyeight.utils.FixedValues.SC
 import com.example.android_games_app.games.twentyfortyeight.utils.SwipeDirection
 import com.example.android_games_app.games.twentyfortyeight.utils.TileFunctions
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.GamePauseOrCompleteScreen
+import com.example.android_games_app.utils.OverlayMenuScreen
 import com.example.android_games_app.utils.GameProgressStatus
+import com.example.android_games_app.utils.OverlayScreen
 import com.example.android_games_app.utils.TopBarWithBackIcon
 import kotlin.math.abs
 
@@ -231,31 +231,20 @@ fun TwentyFortyEightGameScreen(
 
                     if (gameState.gameProgressStatus in listOf(GameProgressStatus.WON, GameProgressStatus.LOST)) {
                         val overlayHeight = (verticalMarginSize * (DIM_SIZE + 1)) + (dimensionGridCell * DIM_SIZE)
-                        Box(
-                            modifier = Modifier
-                                .height(overlayHeight.dp)
-                                .fillMaxWidth()
-                                .background(
-                                    color = Color.Yellow.copy(
-                                        alpha = 0.5f
-                                    ),
-                                    shape = RoundedCornerShape(6.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else "Game Over",
-                                color = Color.Black,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+
+                        OverlayScreen(
+                            screenColor = Color.Yellow,
+                            screenShape = RoundedCornerShape(6.dp),
+                            screenWidth = screenWidth.dp,
+                            screenHeight = overlayHeight.dp,
+                            text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else "Game Over"
+                        )
                     }
                 }
             }
 
             if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
                     text = "Are you sure you want to restart the game?",
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,

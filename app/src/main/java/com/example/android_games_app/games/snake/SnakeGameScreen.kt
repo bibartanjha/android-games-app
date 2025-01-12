@@ -2,7 +2,6 @@ package com.example.android_games_app.games.snake
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -24,7 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.android_games_app.games.snake.utils.SnakeDirection
@@ -33,7 +34,7 @@ import com.example.android_games_app.games.snake.utils.SnakeFixedValues.NUM_GRID
 import com.example.android_games_app.games.snake.utils.SnakeFixedValues.SNAKE_GAME_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.DirectionButtons
-import com.example.android_games_app.utils.GamePauseOrCompleteScreen
+import com.example.android_games_app.utils.OverlayMenuScreen
 import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.TopBarWithBackIcon
 
@@ -177,7 +178,21 @@ fun SnakeGameScreen(
                 )
             }
             if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
+                    text = "Game Paused",
+                    cardBGColor = Color.LightGray,
+                    textColor = Color.Black,
+                    buttonTexts = listOf("Resume", "Restart"),
+                    onButtonSelection = {
+                        if (it == "Resume") {
+                            snakeGameViewModel.resumeGame()
+                        } else if (it == "Restart") {
+                            snakeGameViewModel.startNewGame()
+                        }
+                    }
+                )
+            } else if (gameState.gameProgressStatus == GameProgressStatus.SHOWING_CUSTOMIZATION_SCREEN) {
+                OverlayMenuScreen(
                     text = "Game Paused",
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,
@@ -191,7 +206,7 @@ fun SnakeGameScreen(
                     }
                 )
             } else if (gameState.gameProgressStatus in listOf(GameProgressStatus.LOST, GameProgressStatus.WON)) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
                     text = "Game Over!",
                     subTexts = listOf("You scored ${gameState.currentScore} points"),
                     cardBGColor = Color.LightGray,

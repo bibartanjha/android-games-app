@@ -30,9 +30,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -131,7 +134,7 @@ fun ImageCardPreview() {
 }
 
 @Composable
-fun GamePauseOrCompleteScreen(
+fun OverlayMenuScreen(
     text: String,
     subTexts: List<String> = emptyList(),
     cardBGColor: Color,
@@ -139,14 +142,14 @@ fun GamePauseOrCompleteScreen(
     buttonTexts: List<String>,
     onButtonSelection: (buttonText: String) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Color.Black.copy(
-                    alpha = 0.5f
-                )
-            )
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
+    
+    OverlayScreen(
+        screenColor = Color.Black,
+        screenWidth = screenWidth.dp,
+        screenHeight = screenHeight.dp
     )
 
     Menu(text, subTexts, cardBGColor, textColor, buttonTexts, onButtonSelection)
@@ -154,14 +157,57 @@ fun GamePauseOrCompleteScreen(
 
 @Preview
 @Composable
-fun GamePauseOrCompleteScreenPreview() {
-    GamePauseOrCompleteScreen(
+fun OverlayMenuScreenPreview() {
+    OverlayMenuScreen(
         text = "Congrats on finishing the game!",
         subTexts = listOf("You scored 33 points", "Pick a next option"),
         cardBGColor = Color.Cyan,
         textColor = Color.Black,
         buttonTexts = listOf("Restart", "Resume"),
         onButtonSelection = {}
+    )
+}
+
+@Composable
+fun OverlayScreen(
+    screenColor: Color,
+    screenShape: Shape = RectangleShape,
+    screenWidth: Dp,
+    screenHeight: Dp,
+    text: String? = null,
+) {
+    Box(
+        modifier = Modifier
+            .width(screenWidth)
+            .height(screenHeight)
+            .background(
+                color = screenColor.copy(
+                    alpha = 0.5f
+                ),
+                shape = screenShape
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        if (text != null) {
+            Text(
+                text = text,
+                color = Color.Black,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun OverlayScreenPreview() {
+    OverlayScreen(
+        screenColor = Color.Magenta,
+        screenShape = RectangleShape,
+        screenWidth = 100.dp,
+        screenHeight = 100.dp,
+        text = "Hello"
     )
 }
 
@@ -330,5 +376,4 @@ fun DirectionButtonsPreview() {
         arrowCardWidth = 20
     )
 }
-
 

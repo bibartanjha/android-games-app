@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,8 +39,9 @@ import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_LE
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.NUM_POSSIBLE_GUESSES
 import com.example.android_games_app.games.wordle.utils.WordleFixedValues.WORDLE_SCREEN_BG_COLOR
 import com.example.android_games_app.navigation.Routes
-import com.example.android_games_app.utils.GamePauseOrCompleteScreen
+import com.example.android_games_app.utils.OverlayMenuScreen
 import com.example.android_games_app.utils.GameProgressStatus
+import com.example.android_games_app.utils.OverlayScreen
 
 @Composable
 fun WordleGameScreen(
@@ -123,25 +123,13 @@ fun WordleGameScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(horizontalSpacingBetweenLetters.dp, Alignment.CenterHorizontally)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(overlayWidth.dp)
-                                    .height(overlayHeight.dp)
-                                    .background(
-                                        color = Color.Yellow.copy(
-                                            alpha = 0.5f
-                                        ),
-                                        shape = RoundedCornerShape(6.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else gameState.wordForUserToGuess,
-                                    color = Color.Black,
-                                    fontSize = 32.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                            OverlayScreen(
+                                screenColor = Color.Magenta,
+                                screenShape = RoundedCornerShape(6.dp),
+                                screenWidth = overlayWidth.dp,
+                                screenHeight = overlayHeight.dp,
+                                text = if (gameState.gameProgressStatus == GameProgressStatus.WON) "You Win!" else gameState.wordForUserToGuess
+                            )
                         }
                     }
                 }
@@ -204,7 +192,7 @@ fun WordleGameScreen(
                 }
             }
             if (gameState.gameProgressStatus == GameProgressStatus.RESTART_PRESSED) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
                     text = "Are you sure you want to start a new game?",
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,

@@ -51,7 +51,7 @@ import com.example.android_games_app.games.frogger.utils.RowObject.getDisplayWid
 import com.example.android_games_app.games.frogger.utils.RowObject.getImage
 import com.example.android_games_app.navigation.Routes
 import com.example.android_games_app.utils.DirectionButtons
-import com.example.android_games_app.utils.GamePauseOrCompleteScreen
+import com.example.android_games_app.utils.OverlayMenuScreen
 import com.example.android_games_app.utils.GameProgressStatus
 import com.example.android_games_app.utils.TopBarWithBackIcon
 
@@ -306,7 +306,7 @@ fun FroggerScreen(
 
 
             if (gameState.gameProgressStatus == GameProgressStatus.PAUSED) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
                     text = "Game Paused",
                     cardBGColor = Color.LightGray,
                     textColor = Color.Black,
@@ -320,7 +320,7 @@ fun FroggerScreen(
                     }
                 )
             } else if (gameState.gameProgressStatus in listOf(GameProgressStatus.LOST, GameProgressStatus.WON)) {
-                GamePauseOrCompleteScreen(
+                OverlayMenuScreen(
                     text = if (gameState.gameProgressStatus == GameProgressStatus.LOST) {
                         "No lives left"
                     } else {
