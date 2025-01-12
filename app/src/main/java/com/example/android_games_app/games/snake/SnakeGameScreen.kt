@@ -78,19 +78,15 @@ fun SnakeGameScreen(
                 Row (
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Score: ${gameState.currentScore}",
-                        color = Color.White,
-                        fontWeight = FontWeight.W800,
-                        modifier = Modifier
-                            .border(2.dp, Color.White, shape = RoundedCornerShape(4.dp))
-                            .padding(horizontal = 30.dp, vertical = 10.dp),
-                    )
                     Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = { snakeGameViewModel.pauseGame() }) {
+                    Button(
+                        onClick = { snakeGameViewModel.pauseGame() }
+                    ) {
                         Text("⏸")
                     }
                 }
+
+                val textMeasurer = rememberTextMeasurer()
 
                 Canvas(
                     modifier = Modifier
@@ -105,7 +101,10 @@ fun SnakeGameScreen(
                     val totalHeightOfGameBoard = dimensionGridCell * NUM_GRID_ROWS
 
                     val horizontalMarginAroundGameBoard = (canvasWidth - totalWidthOfGameBoard) / 2
-                    val verticalMarginAroundGameBoard = 10.toFloat()
+                    val verticalMargin = 10.toFloat()
+                    val heightOfScoreRow = totalHeightOfGameBoard * .05f
+
+                    val startOfGameBoard = heightOfScoreRow + verticalMargin
 
                     for (row in 0 until NUM_GRID_ROWS) {
                         for (col in 0 until NUM_GRID_COLS) {
@@ -114,7 +113,7 @@ fun SnakeGameScreen(
                                 size = androidx.compose.ui.geometry.Size(dimensionGridCell, dimensionGridCell),
                                 topLeft = androidx.compose.ui.geometry.Offset(
                                     horizontalMarginAroundGameBoard + (col * dimensionGridCell),
-                                    verticalMarginAroundGameBoard + (row * dimensionGridCell)
+                                    startOfGameBoard + (row * dimensionGridCell)
                                 ),
                                 style = Stroke(width = 1.dp.toPx())
                             )
@@ -138,7 +137,7 @@ fun SnakeGameScreen(
                             size = androidx.compose.ui.geometry.Size(dimensionGridCell, dimensionGridCell),
                             topLeft = androidx.compose.ui.geometry.Offset(
                                 horizontalMarginAroundGameBoard + (snakeCoordinates[snakePointIndex].col * dimensionGridCell),
-                                verticalMarginAroundGameBoard + (snakeCoordinates[snakePointIndex].row * dimensionGridCell)
+                                startOfGameBoard + (snakeCoordinates[snakePointIndex].row * dimensionGridCell)
                             ),
                         )
                     }
@@ -148,15 +147,35 @@ fun SnakeGameScreen(
                         size = androidx.compose.ui.geometry.Size(dimensionGridCell, dimensionGridCell),
                         topLeft = androidx.compose.ui.geometry.Offset(
                             horizontalMarginAroundGameBoard + (gameState.snakeFoodCoordinates.col * dimensionGridCell),
-                            verticalMarginAroundGameBoard + (gameState.snakeFoodCoordinates.row * dimensionGridCell)
+                            startOfGameBoard + (gameState.snakeFoodCoordinates.row * dimensionGridCell)
                         ),
                     )
 
                     drawRect(
                         color = Color.White,
                         size = androidx.compose.ui.geometry.Size(totalWidthOfGameBoard, totalHeightOfGameBoard),
-                        topLeft = androidx.compose.ui.geometry.Offset(horizontalMarginAroundGameBoard, verticalMarginAroundGameBoard),
+                        topLeft = androidx.compose.ui.geometry.Offset(horizontalMarginAroundGameBoard, startOfGameBoard),
                         style = Stroke(width = 4.dp.toPx())
+                    )
+
+                    drawRect(
+                        color = Color.White,
+                        size = androidx.compose.ui.geometry.Size(totalWidthOfGameBoard, heightOfScoreRow),
+                        topLeft = androidx.compose.ui.geometry.Offset(horizontalMarginAroundGameBoard, verticalMargin),
+                        style = Stroke(width = 4.dp.toPx())
+                    )
+
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = "Score: ${gameState.currentScore}",
+                        style = TextStyle(
+                            fontWeight = FontWeight.W800,
+                            color = Color.White
+                        ),
+                        topLeft = androidx.compose.ui.geometry.Offset(
+                            horizontalMarginAroundGameBoard + (totalWidthOfGameBoard * .02f),
+                            verticalMargin + (heightOfScoreRow * .1f)
+                        )
                     )
                 }
 
