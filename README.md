@@ -6,7 +6,7 @@ In this app, I coded a variety of games using Android Jetpack Compose. Each game
 ### App main-menu screen
 <img width="288" alt="Screenshot 2025-02-23 at 1 52 36 PM" src="https://github.com/user-attachments/assets/f51b6614-a2a0-4bb8-ac35-99f1840b534c" />
 
-Upon clicking on each icon, you will be led to the respective game. This navigation was done using `rememberNavController` from the androidx.navigation.compose library. You can see the navigating code here: https://github.com/bibartanjha/android-games-app/tree/main/app/src/main/java/com/example/android_games_app/navigation
+Upon clicking on each icon, you will be led to the respective game. This navigation was done using `rememberNavController` from the androidx.navigation.compose library. You can see the navigation code here: https://github.com/bibartanjha/android-games-app/tree/main/app/src/main/java/com/example/android_games_app/navigation
 
 Video of navigating through games:
 
