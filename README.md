@@ -14,8 +14,12 @@ https://github.com/user-attachments/assets/ba6a5d0f-84a3-42c6-bfcc-ab8bb03184d5
 
 
 
-For more details about each game as well as game-play videos, you can go to the respective READMEs. Links below:
+For more details about each game as well as game-play videos, you can go to the respective READMEs. Links to each subdirectory below:
 
+- Wordle: https://github.com/bibartanjha/android-games-app/tree/main/app/src/main/java/com/example/android_games_app/games/wordle
+- Snake: https://github.com/bibartanjha/android-games-app/blob/main/app/src/main/java/com/example/android_games_app/games/snake
+- 2048: https://github.com/bibartanjha/android-games-app/tree/main/app/src/main/java/com/example/android_games_app/games/twentyfortyeight
+- Frogger: https://github.com/bibartanjha/android-games-app/blob/main/app/src/main/java/com/example/android_games_app/games/frogger
 
 
 
