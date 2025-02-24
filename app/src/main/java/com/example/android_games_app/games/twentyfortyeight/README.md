@@ -1,0 +1,7 @@
+# 2048
+  
+# Summary of game
+- Developed a 2048 game using Jetpack Compose with a well-structured MVVM architecture, ensuring scalability and maintainability
+- Implemented gesture-based swipe controls and dynamic tile animations for a smooth and interactive user experience.
+- Utilized StateFlow for real-time game state management, including game progress, tile merging, and new tile generation.
+- Designed an efficient grid-based game logic, incorporating collision detection, win/loss conditions, and adaptive difficulty handling.
