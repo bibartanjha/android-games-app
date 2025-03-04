@@ -10,3 +10,8 @@
 
 https://github.com/user-attachments/assets/160fc568-5e35-4d86-b7df-3208bfd63cd1
 
+# Video of game customization
+
+https://github.com/user-attachments/assets/c51f8a57-8a1e-46d0-b871-e55a90f6d706
+
+
